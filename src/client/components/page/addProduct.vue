@@ -9,47 +9,24 @@
         <div class="container">
             <div class="form-box">
                 <el-form ref="form" :model="form" label-width="80px">
-                    <el-form-item label="表单名称">
+                    <el-form-item label="姓名">
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="选择器">
-                        <el-select v-model="form.region" placeholder="请选择">
-                            <el-option key="bbk" label="步步高" value="bbk"></el-option>
-                            <el-option key="xtc" label="小天才" value="xtc"></el-option>
-                            <el-option key="imoo" label="imoo" value="imoo"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="日期时间">
+                    <el-form-item label="日期">
                         <el-col :span="11">
-                            <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
-                        </el-col>
-                        <el-col class="line" :span="2">-</el-col>
-                        <el-col :span="11">
-                            <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
+                          <el-date-picker
+                            type="date"
+                            placeholder="选择日期"
+                            v-model="form.date"
+                            style="width: 100%;"
+                            format="yyyy 年 MM 月 dd 日"
+                            value-format="yyyy-MM-dd">
+                          </el-date-picker>
                         </el-col>
                     </el-form-item>
-                    <el-form-item label="城市级联">
-                        <el-cascader :options="options" v-model="form.options"></el-cascader>
-                    </el-form-item>
-                    <el-form-item label="选择开关">
-                        <el-switch v-model="form.delivery"></el-switch>
-                    </el-form-item>
-                    <el-form-item label="多选框">
-                        <el-checkbox-group v-model="form.type">
-                            <el-checkbox label="步步高" name="type"></el-checkbox>
-                            <el-checkbox label="小天才" name="type"></el-checkbox>
-                            <el-checkbox label="imoo" name="type"></el-checkbox>
-                        </el-checkbox-group>
-                    </el-form-item>
-                    <el-form-item label="单选框">
-                        <el-radio-group v-model="form.resource">
-                            <el-radio label="步步高"></el-radio>
-                            <el-radio label="小天才"></el-radio>
-                            <el-radio label="imoo"></el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="文本框">
-                        <el-input type="textarea" rows="5" v-model="form.desc"></el-input>
+                    <el-form-item label="地址">
+                      <el-cascader :options="options" v-model="form.address">
+                      </el-cascader>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">表单提交</el-button>
@@ -68,33 +45,33 @@ export default {
     return {
       options: [
         {
-          value: 'guangdong',
+          value: '广东省',
           label: '广东省',
           children: [
             {
-              value: 'guangzhou',
+              value: '广州市',
               label: '广州市',
               children: [
                 {
-                  value: 'tianhe',
+                  value: '天河区',
                   label: '天河区'
                 },
                 {
-                  value: 'haizhu',
+                  value: '海珠区',
                   label: '海珠区'
                 }
               ]
             },
             {
-              value: 'dongguan',
+              value: '东莞市',
               label: '东莞市',
               children: [
                 {
-                  value: 'changan',
+                  value: '长安镇',
                   label: '长安镇'
                 },
                 {
-                  value: 'humen',
+                  value: '虎门镇',
                   label: '虎门镇'
                 }
               ]
@@ -102,15 +79,15 @@ export default {
           ]
         },
         {
-          value: 'hunan',
+          value: '湖南省',
           label: '湖南省',
           children: [
             {
-              value: 'changsha',
+              value: '长沙市',
               label: '长沙市',
               children: [
                 {
-                  value: 'yuelu',
+                  value: '岳麓区',
                   label: '岳麓区'
                 }
               ]
@@ -120,20 +97,23 @@ export default {
       ],
       form: {
         name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: true,
-        type: ['步步高'],
-        resource: '小天才',
-        desc: '',
-        options: []
+        date: '',
+        address: []
       }
     }
   },
   methods: {
-    onSubmit () {
-      this.$message.success('提交成功！')
+    async onSubmit () {
+      var form = {
+        name: this.form.name,
+        date: this.form.date,
+        address: this.form.address.toString().replace(new RegExp(',', 'gm'), ' ')
+      }
+      await this.$axios.post('/api/list/add', form)
+      await this.$set(this.form, 'name', '')
+      await this.$set(this.form, 'date', '')
+      await this.$set(this.form, 'address', [])
+      await this.$message.success('提交成功！')
     }
   }
 }

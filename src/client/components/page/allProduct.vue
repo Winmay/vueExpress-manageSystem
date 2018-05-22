@@ -18,6 +18,8 @@
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="contentId" label="id" sortable width="60">
+                </el-table-column>
                 <el-table-column prop="date" label="日期" sortable width="150">
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" width="120">
@@ -83,6 +85,7 @@ export default {
       editVisible: false,
       delVisible: false,
       form: {
+        contentId: '',
         name: '',
         date: '',
         address: ''
@@ -121,12 +124,12 @@ export default {
       this.getData()
     },
     // 获取 easy-mock 的模拟数据
-    getData () {
+    async getData () {
       // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
       if (process.env.NODE_ENV === 'development') {
         this.url = '/api/list'
       };
-      this.$axios.get(this.url, {
+      await this.$axios.get(this.url, {
         page: this.cur_page
       }).then((res) => {
         this.tableData = res.data.list
@@ -145,6 +148,7 @@ export default {
       this.idx = index
       const item = this.tableData[index]
       this.form = {
+        contentId: item.contentId,
         name: item.name,
         date: item.date,
         address: item.address
@@ -169,15 +173,22 @@ export default {
       this.multipleSelection = val
     },
     // 保存编辑
-    saveEdit () {
-      this.$set(this.tableData, this.idx, this.form)
+    async saveEdit () {
+      await this.$set(this.tableData, this.idx, this.form)
+      await this.$axios.post('/api/list/mod', this.form)
       this.editVisible = false
-      this.$message.success(`修改第 ${this.idx + 1} 行成功`)
+      await this.$message.success(`修改第 ${this.idx + 1} 行成功`)
     },
     // 确定删除
-    deleteRow () {
-      this.tableData.splice(this.idx, 1)
-      this.$message.success('删除成功')
+    async deleteRow () {
+      console.log(this.idx)
+      console.log(this.tableData[this.idx].contentId)
+      await this.$axios.post('/api/list/del', {
+        contentId: this.tableData[this.idx].contentId
+      })
+      // await this.tableData.splice(this.idx, 1)
+      await this.$message.success('删除成功')
+      await this.getData()
       this.delVisible = false
     }
   }

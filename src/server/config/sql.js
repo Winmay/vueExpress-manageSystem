@@ -56,12 +56,12 @@ var query = (sql,val) => {
 */
 var createTable = ( sqlName, sqlparam, comment ) => {
 	if( comment ) {
-		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT=${comment};`
-		console.log(_sql)
+		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8 COMMENT=${comment};`
+		// console.log(_sql)
 		return query( _sql, [] )
 	} else {
-		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB DEFAULT CHARSET=utf8;`
-		console.log(_sql)
+		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;`
+		// console.log(_sql)
 		return query( _sql, [] )
 	}
 }
@@ -263,8 +263,21 @@ var selectSqlData = ( table, param, mode ) => {
 })*/
 
 /***增加（插入）数据***/
-var insertSqlData = ( table, param, value ) => {
-	//求列值中的平均值
+var insertSqlData = ( table, object ) => {
+	let addData = object
+    let param = ''
+    let value = Object.values(addData);
+    for( let key in addData ){
+        if( addData[key] == value[value.length-1] ){
+            param = param + key + '=?';
+        }else{
+            param = param + key + '=?,';
+        }
+    }
+    console.log(addData)
+    console.log('param:'+param)
+    console.log('value:'+value)
+
 	var _sql = `insert into ${table} set ${param}; `
     return query(_sql, value) 
 }
@@ -276,12 +289,28 @@ insertSqlData( 'datasource', aaa, bbb ).then(res => {
 
 
 /***更新数据***/
-var updateSqlData = ( table, param, value, condition ) => {
+var updateSqlData = ( table, object, condition ) => {
+
+	let modData = object
+    let param = ''
+    let value = Object.values(modData);
+    for( let key in modData ){
+        if( modData[key] == value[value.length-1] ){
+            param = param + key + '=?';
+        }else{
+            param = param + key + '=?,';
+        }
+    }
+    console.log(modData)
+    console.log('param:'+param)
+    console.log('value:'+value)
+
 	if( condition ){
 		var _sql = `update ${table} set ${param} where ${condition}; `
 	}else{
 		var _sql = `update ${table} set ${param}; `
 	}
+	console.log(_sql)
     return query(_sql, value) 
 }
 /*var dd = 'name=?,email=?,ip=?'

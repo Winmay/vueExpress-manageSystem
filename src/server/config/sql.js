@@ -56,11 +56,11 @@ var query = (sql,val) => {
 */
 var createTable = ( sqlName, sqlparam, comment ) => {
 	if( comment ) {
-		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8 COMMENT=${comment};`
+		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 COMMENT=${comment};`
 		// console.log(_sql)
 		return query( _sql, [] )
 	} else {
-		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;`
+		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8;`
 		// console.log(_sql)
 		return query( _sql, [] )
 	}

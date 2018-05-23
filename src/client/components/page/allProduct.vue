@@ -17,14 +17,17 @@
                 <el-button type="primary" icon="search" @click="search">搜索</el-button>
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column type="selection" width="50"></el-table-column>
                 <el-table-column prop="contentId" label="id" sortable width="60">
                 </el-table-column>
-                <el-table-column prop="date" label="日期" sortable width="150">
+                <el-table-column prop="name
+                " label="产品名称" sortable width="150">
                 </el-table-column>
-                <el-table-column prop="name" label="姓名" width="120">
+                <el-table-column prop="classify" label="类别" width="120">
                 </el-table-column>
-                <el-table-column prop="address" label="地址" :formatter="formatter">
+                <el-table-column prop="factoryPrice" label="出厂价格" width="120">
+                </el-table-column>
+                <el-table-column prop="discountPrice" label="折扣价格" width="120">
                 </el-table-column>
                 <el-table-column label="操作" width="180">
                     <template slot-scope="scope">
@@ -88,8 +91,9 @@ export default {
       form: {
         contentId: '',
         name: '',
-        date: '',
-        address: ''
+        classify: '',
+        factoryPrice: '',
+        discountPrice: ''
       },
       idx: -1
     }
@@ -99,6 +103,8 @@ export default {
   },
   computed: {
     data () {
+      return this.tableData
+      /*
       return this.tableData.filter((d) => {
         let isDel = false
         for (let i = 0; i < this.del_list.length; i++) {
@@ -116,6 +122,7 @@ export default {
           }
         }
       })
+      */
     }
   },
   methods: {
@@ -127,6 +134,7 @@ export default {
     // 获取 easy-mock 的模拟数据
     async getData () {
       // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
+      /*
       if (process.env.NODE_ENV === 'development') {
         this.url = '/api/list/get'
       };
@@ -138,6 +146,7 @@ export default {
         this.tableData = res.data.data
         this.totalPage = res.data.count
       })
+      */
     },
     search () {
       this.is_search = true

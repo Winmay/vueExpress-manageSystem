@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item><i class="el-icon-date"></i>产品管理</el-breadcrumb-item>
-                <el-breadcrumb-item>产品分类</el-breadcrumb-item>
+                <el-breadcrumb-item>所有产品列表</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
@@ -18,6 +18,8 @@
             </div>
             <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column prop="contentId" label="id" sortable width="60">
+                </el-table-column>
                 <el-table-column prop="date" label="日期" sortable width="150">
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" width="120">
@@ -32,7 +34,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
+                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="totalPage">
                 </el-pagination>
             </div>
         </div>
@@ -74,6 +76,7 @@ export default {
     return {
       url: './static/vuetable.json',
       tableData: [],
+      totalPage: 0,
       cur_page: 1,
       multipleSelection: [],
       select_cate: '',
@@ -83,6 +86,7 @@ export default {
       editVisible: false,
       delVisible: false,
       form: {
+        contentId: '',
         name: '',
         date: '',
         address: ''
@@ -121,15 +125,18 @@ export default {
       this.getData()
     },
     // 获取 easy-mock 的模拟数据
-    getData () {
+    async getData () {
       // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
       if (process.env.NODE_ENV === 'development') {
-        this.url = '/api/list'
+        this.url = '/api/list/get'
       };
-      this.$axios.get(this.url, {
-        page: this.cur_page
+      await this.$axios.get(this.url, {
+        params: {
+          pageIndex: this.cur_page
+        }
       }).then((res) => {
-        this.tableData = res.data.list
+        this.tableData = res.data.data
+        this.totalPage = res.data.count
       })
     },
     search () {
@@ -145,6 +152,7 @@ export default {
       this.idx = index
       const item = this.tableData[index]
       this.form = {
+        contentId: item.contentId,
         name: item.name,
         date: item.date,
         address: item.address
@@ -169,15 +177,22 @@ export default {
       this.multipleSelection = val
     },
     // 保存编辑
-    saveEdit () {
-      this.$set(this.tableData, this.idx, this.form)
+    async saveEdit () {
+      await this.$set(this.tableData, this.idx, this.form)
+      await this.$axios.post('/api/list/mod', this.form)
       this.editVisible = false
-      this.$message.success(`修改第 ${this.idx + 1} 行成功`)
+      await this.$message.success(`修改第 ${this.idx + 1} 行成功`)
     },
     // 确定删除
-    deleteRow () {
-      this.tableData.splice(this.idx, 1)
-      this.$message.success('删除成功')
+    async deleteRow () {
+      console.log(this.idx)
+      console.log(this.tableData[this.idx].contentId)
+      await this.$axios.post('/api/list/del', {
+        contentId: this.tableData[this.idx].contentId
+      })
+      // await this.tableData.splice(this.idx, 1)
+      await this.$message.success('删除成功')
+      await this.getData()
       this.delVisible = false
     }
   }

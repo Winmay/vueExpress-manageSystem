@@ -34,7 +34,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="1000">
+                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="totalPage">
                 </el-pagination>
             </div>
         </div>
@@ -76,6 +76,7 @@ export default {
     return {
       url: './static/vuetable.json',
       tableData: [],
+      totalPage: 0,
       cur_page: 1,
       multipleSelection: [],
       select_cate: '',
@@ -127,12 +128,15 @@ export default {
     async getData () {
       // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
       if (process.env.NODE_ENV === 'development') {
-        this.url = '/api/list'
+        this.url = '/api/list/get'
       };
       await this.$axios.get(this.url, {
-        page: this.cur_page
+        params: {
+          pageIndex: this.cur_page
+        }
       }).then((res) => {
-        this.tableData = res.data.list
+        this.tableData = res.data.data
+        this.totalPage = res.data.count
       })
     },
     search () {

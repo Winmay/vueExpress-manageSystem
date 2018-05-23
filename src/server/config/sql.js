@@ -230,7 +230,7 @@ var fetchAvgSqlData = ( table, param ) => {
 	console.log(JSON.parse(JSON.stringify(res)))
 })*/
 
-var selectSqlData = ( table, param, mode ) => {
+var selectSqlData = ( table, mode, param ) => {
 	switch( mode ){
 		case 'asc':
 			//升序排列

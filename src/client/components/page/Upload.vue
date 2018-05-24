@@ -7,6 +7,28 @@
             </el-breadcrumb>
         </div>
         <div class="container">
+            <div class="content-title">用户头像上传</div>
+            <el-upload
+              class="avatar-uploader"
+              action="/api/posts/"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload">
+              <img v-if="imageUrl" :src="imageUrl" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+            <div class="content-title">照片墙</div>
+            <el-upload
+              action="/api/posts/"
+              :show-file-list="true"
+              list-type="picture-card"
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove">
+              <i class="el-icon-plus"></i>
+            </el-upload>
+            <el-dialog :visible.sync="dialogVisible1">
+              <img width="100%" :src="dialogImageUrl" alt="">
+            </el-dialog>
             <div class="content-title">支持拖拽</div>
             <div class="plugins-tips">
                 Element UI自带上传组件。
@@ -52,13 +74,38 @@ export default {
       fileList: [],
       imgSrc: '',
       cropImg: '',
-      dialogVisible: false
+      dialogVisible: false,
+      imageUrl: '',
+      dialogImageUrl: '',
+      dialogVisible1: false
     }
   },
   components: {
     VueCropper
   },
   methods: {
+    handleAvatarSuccess (res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    beforeAvatarUpload (file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
+    handleRemove (file, fileList) {
+      console.log(file, fileList)
+    },
+    handlePictureCardPreview (file) {
+      this.dialogImageUrl = file.url
+      this.dialogVisible = true
+    },
     setImage (e) {
       const file = e.target.files[0]
       if (!file.type.includes('image/')) {
@@ -96,6 +143,29 @@ export default {
 </script>
 
 <style scoped>
+    .avatar-uploader .el-upload {
+      border: 1px dashed #d9d9d9;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .avatar-uploader .el-upload:hover {
+      border-color: #409EFF;
+    }
+    .avatar-uploader-icon {
+      font-size: 28px;
+      color: #8c939d;
+      width: 178px;
+      height: 178px;
+      line-height: 178px;
+      text-align: center;
+    }
+    .avatar {
+      width: 178px;
+      height: 178px;
+      display: block;
+    }
     .content-title{
         font-weight: 400;
         line-height: 50px;

@@ -55,6 +55,21 @@ export default {
           ]
         },
         {
+          icon: 'el-icon-date',
+          index: 'test',
+          title: '列表测试',
+          subs: [
+            {
+              index: 'testList',
+              title: '列表数据'
+            },
+            {
+              index: 'testAdd',
+              title: '添加数据'
+            }
+          ]
+        },
+        {
           icon: 'el-icon-tickets',
           index: 'table',
           title: '基础表格'

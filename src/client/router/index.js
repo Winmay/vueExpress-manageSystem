@@ -35,6 +35,16 @@ export default new Router({
           meta: { title: '产品分类' }
         },
         {
+          path: '/testList',
+          component: resolve => require(['../components/page/testList.vue'], resolve),
+          meta: { title: '列表数据' }
+        },
+        {
+          path: '/testAdd',
+          component: resolve => require(['../components/page/testAdd.vue'], resolve),
+          meta: { title: '添加数据' }
+        },
+        {
           path: '/table',
           component: resolve => require(['../components/page/BaseTable.vue'], resolve),
           meta: { title: '基础表格' }

@@ -16,20 +16,28 @@
                 <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="search" @click="search">搜索</el-button>
             </div>
-            <el-table :data="data" border style="width: 100%" ref="multipleTable" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="50"></el-table-column>
-                <el-table-column prop="contentId" label="id" sortable width="60">
+            <el-table
+              :data="data"
+              stripe
+              height="250"
+              style="width: 100%"
+              ref="multipleTable"
+              @selection-change="handleSelectionChange">
+                <el-table-column header-align="center" type="selection" width="50"></el-table-column>
+                <el-table-column header-align="center" prop="contentId" label="商品ID" width="60">
                 </el-table-column>
-                <el-table-column prop="name
-                " label="产品名称" sortable width="150">
+                <el-table-column header-align="center" prop="name
+                " label="商品名称" width="150">
                 </el-table-column>
-                <el-table-column prop="classify" label="类别" width="120">
+                <el-table-column header-align="center" sortable prop="classify" label="商品分类" width="120">
                 </el-table-column>
-                <el-table-column prop="factoryPrice" label="出厂价格" width="120">
+                <el-table-column header-align="center" prop="inventory" label="库存" width="100">
                 </el-table-column>
-                <el-table-column prop="discountPrice" label="折扣价格" width="120">
+                <el-table-column header-align="center" prop="marketPrice" label="市场价格" width="100">
                 </el-table-column>
-                <el-table-column label="操作" width="180">
+                <el-table-column header-align="center" prop="discountPrice" label="折扣价格" width="100">
+                </el-table-column>
+                <el-table-column header-align="center" label="操作" width="180">
                     <template slot-scope="scope">
                         <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                         <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
@@ -92,7 +100,7 @@ export default {
         contentId: '',
         name: '',
         classify: '',
-        factoryPrice: '',
+        marketPrice: '',
         discountPrice: ''
       },
       idx: -1

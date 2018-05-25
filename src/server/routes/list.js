@@ -1,6 +1,7 @@
 var express = require('express');
 var sql = require('../config/sql');
 var api = require('./api');
+var jsonWrite = require('./jsonWrite');
 let newData = {
     data:{},
     msg:'',
@@ -8,24 +9,6 @@ let newData = {
 };
 
 var router = express.Router();
-
-var jsonWrite = function(response, data) {
-    console.log('data:'+typeof data)
-    /*code枚举值如下： 
-    空数据：1 
-    未知错误 10001； 
-    校验错误 10002； 
-    权限错误 10003； 
-    参数错误 10004；*/ 
-    if (typeof data === 'undefined') {
-        response.json({
-            code: 1,
-            msg: '操作失败'
-        });
-    } else {
-        response.json(data);
-    }
-};
 
 var param = 'contentId INT NOT NULL AUTO_INCREMENT,'
     +'name VARCHAR(100) NOT NULL,'

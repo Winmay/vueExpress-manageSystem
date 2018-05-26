@@ -66,6 +66,12 @@ export default new Router({
           meta: { title: '富文本编辑器' }
         },
         {
+          // 富文本编辑器组件
+          path: '/ueditor',
+          component: resolve => require(['../components/page/Ueditor.vue'], resolve),
+          meta: { title: 'ueditor编辑器' }
+        },
+        {
           // markdown组件
           path: '/markdown',
           component: resolve => require(['../components/page/Markdown.vue'], resolve),

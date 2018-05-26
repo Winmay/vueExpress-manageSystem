@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser  = require('body-parser');
 var logger = require('morgan');
 
+var ueditor = require('ueditor');
 var config = require('../../config')
 if (!process.env.NODE_ENV) process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV)
 
@@ -33,7 +34,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads',express.static(path.join(__dirname, 'uploads')))  
+var dir = __dirname
+console.log(dir)
+// app.use(express.static(path.join(dir.substring(0,dir.indexOf('server')), 'client\static')));  
 
 
 //nodejs 解除跨域限制
@@ -50,11 +53,44 @@ app.all('*', function(req, res, next) {
 
 // serve pure static assets
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
-app.use(staticPath, express.static('../client/static'))
+app.use(staticPath, express.static('./src/client/static'))
 
 
 app.use('/', indexRouter);
 app.use('/', Router);
+app.use("/api/ueditor", ueditor('./src/client/static', function (req, res, next) {
+    //客户端上传文件设置
+    console.log(req) 
+    console.log('path:'+req.path)   
+    console.log('ueditor:'+JSON.stringify(req.ueditor))
+    console.log('body:'+JSON.stringify(req.body)) 
+    console.log('query:'+JSON.stringify(req.query))
+    var imgDir = '/img/ueditor/'
+     var ActionType = req.query.action;
+    if (ActionType === 'uploadimage' || ActionType === 'uploadfile' || ActionType === 'uploadvideo') {
+        var file_url = imgDir;//默认图片上传地址
+        /*其他上传格式的地址*/
+        if (ActionType === 'uploadfile') {
+            file_url = '/file/ueditor/'; //附件
+        }
+        if (ActionType === 'uploadvideo') {
+            file_url = '/video/ueditor/'; //视频
+        }
+        res.ue_up(file_url); //你只要输入要保存的地址 。保存操作交给ueditor来做
+        res.setHeader('Content-Type', 'text/html');
+    }
+    //  客户端发起图片列表请求
+    else if (req.query.action === 'listimage') {
+        var dir_url = imgDir;
+        res.ue_list(dir_url); // 客户端会列出 dir_url 目录下的所有图片
+    }
+    // 客户端发起其它请求
+    else {
+        // console.log('config.json')
+        res.setHeader('Content-Type', 'application/json');
+        res.redirect('/static/UE/php/config.json');
+    }
+}));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

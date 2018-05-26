@@ -93,6 +93,10 @@ export default {
               title: '富文本编辑器'
             },
             {
+              index: 'ueditor',
+              title: 'ueditor编辑器'
+            },
+            {
               index: 'markdown',
               title: 'markdown编辑器'
             },

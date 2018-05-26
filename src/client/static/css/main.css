@@ -87,7 +87,8 @@ a {
 /*BaseForm*/
 
 .form-box {
-    width: 600px;
+    max-width: 600px;
+    width: 100%;
 }
 
 .form-box .line {

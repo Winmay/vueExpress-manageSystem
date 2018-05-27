@@ -8,6 +8,6 @@ var ueditor = require('./ueditor');
 app.use('/', admin);
 app.use('/', list);
 app.use('/', upload);
-// app.use('/', ueditor);
+app.use('/', ueditor);
 
 module.exports = app;

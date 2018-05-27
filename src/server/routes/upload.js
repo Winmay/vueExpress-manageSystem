@@ -31,6 +31,8 @@ var createFolder = function(folder){
  **/
 
 var uploadFolder = './src/client/static/uploads';
+// var uploadFolder = './dist/static/uploads';
+
 // var uploadFolder = process.cwd()+'/src/server/public/uploads';
 
 createFolder(uploadFolder);

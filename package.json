@@ -22,7 +22,7 @@
     "compression-webpack-plugin": "^1.1.11",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "element-ui": "^2.3.8",
+    "element-ui": "^2.3.9",
     "eslint-plugin-html": "^4.0.3",
     "express": "~4.16.0",
     "fs": "0.0.1-security",

@@ -90,7 +90,11 @@ router.post('/api/singleUpload', upload.single('avatar'), function (request, res
       'content-type': 'application/json; charset=utf-8'
   });
 
-  jsonWrite(response, file);
+  jsonWrite(response, {
+    data:file,
+    msg:'',
+    code:0
+  });
 })
 
 router.post('/api/multiUpload', upload.array('photos', 9), function (request, response, next) {
@@ -102,7 +106,11 @@ router.post('/api/multiUpload', upload.array('photos', 9), function (request, re
   response.set({
       'content-type': 'application/json; charset=utf-8'
   });
-  jsonWrite(response, files);
+  jsonWrite(response, {
+    data:files,
+    msg:'',
+    code:0
+  });
 })
 var cpUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'gallery', maxCount: 8 }])
 router.post('/cool-profile', cpUpload, function (req, res, next) {

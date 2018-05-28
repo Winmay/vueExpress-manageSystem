@@ -48,24 +48,29 @@
                     </el-form-item>
                     <el-form-item label="轮播图">
                       <el-upload
+                        ref="uploadMulti"
                         class="upload-demo"
                         action="/api/multiUpload"
                         name="photos"
                         multiple
                         list-type="picture"
-                        :file-list="fileList"
+                        :file-list="form.images"
                         :before-upload="beforeUpload"
                         :on-preview="handlePictureCardPreview"
                         :on-remove="handleRemove"
                         :before-remove="beforeRemove"
                         :limit="9"
-                        :on-exceed="handleExceed">
+                        :on-exceed="handleExceed"
+                        :on-success="handleSuccess">
                         <el-button size="small" type="primary">点击上传</el-button>
                         <div slot="tip" class="el-upload__tip">最多只能上传9张照片</div>
                         <div slot="tip" class="el-upload__tip">请上传比例为1:1的正方形图片，且格式为jpg/png文件，大小不能超过5M</div>
                       </el-upload>
                     </el-form-item>
                     <el-form-item label="商品说明">
+                      <div class="editor-container">
+                        <UE :defaultMsg=defaultMsg :config=config ref="ue"></UE>
+                      </div>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">表单提交</el-button>
@@ -79,11 +84,18 @@
 </template>
 
 <script>
+import UE from '../common/ue.vue'
 export default {
+  components: {UE},
   data: function () {
     return {
+      defaultMsg: '这里是UE测试',
+      config: {
+        initialFrameWidth: null,
+        initialFrameHeight: 350
+      },
       imageUrl: '',
-      fileList: [
+      images: [
         {
           name: '34',
           url: './static/uploads/photos-1527240887426.jpg'
@@ -98,18 +110,17 @@ export default {
         discountPrice: '',
         status: '',
         image: '',
-        images: [],
+        images: [
+          {
+            name: '34',
+            url: './static/uploads/photos-1527240887426.jpg'
+          }
+        ],
         introduction: ''
       }
     }
   },
   methods: {
-    handleAvatarSuccess (response, file, fileList) {
-      console.log(response)
-      console.log(file)
-      console.log(fileList)
-      this.imageUrl = URL.createObjectURL(file.raw)
-    },
     imageForm (file) {
       const isJPG = file.type === 'image/pjpeg' || file.type === 'image/jpeg'
       const isPng = file.type === 'image/png' || file.type === 'image/x-png'
@@ -134,8 +145,46 @@ export default {
       }
       return isImageForm && isLt5M
     },
+    handleAvatarSuccess (response, file, fileList) {
+      if (response.code !== 0 || !response.data) {
+        this.$message.error('上传失败' + response.msg)
+        return
+      }
+      this.imageUrl = URL.createObjectURL(file.raw)
+      this.form.image = './static/uploads/' + response.data.filename
+    },
+    async handleSuccess (response, file, fileList) {
+      // console.log(response)
+      // console.log(file)
+      // console.log(fileList)
+      if (response.code !== 0 || !response.data) {
+        this.$message.error('上传失败' + response.msg)
+        return
+      }
+      this.images = this.$refs.uploadMulti.uploadFiles
+    },
     handleRemove (file, fileList) {
-      console.log(file, fileList)
+      console.log(file)
+      console.log(fileList)
+      let tmp = this.form.images
+      let url = ''
+      if( file.response ){
+        url = './static/uploads/' + file.response.data[0].filename
+      }else{
+        url = file.url
+      }
+      try {
+        for ( var i=0; i<tmp.length; i++) {
+          if ( tmp[i].url == url ) {
+            tmp.splice(tmp[i], 1)
+            break
+          }
+        }
+        console.log(tmp)
+        this.form.images = tmp
+      } catch (err) {
+        console.log(err)
+      }
     },
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url
@@ -148,16 +197,37 @@ export default {
       return this.$confirm(`确定移除 ${file.name} ？`)
     },
     async onSubmit () {
+      var newImages = [];
+      for ( var i=0; i<this.images.length; i++) {
+        if (!this.images[i].response){
+          newImages.push({
+            name: this.images[i].name,
+            url: this.images[i].url
+          })
+        }else{
+          newImages.push({
+            name: this.images[i].response.data[0].originalname,
+            url: './static/uploads/' + this.images[i].response.data[0].filename
+          })
+        }
+      }
+      this.images
       var form = {
         name: this.form.name,
-        date: this.form.date,
-        address: this.form.address.toString().replace(new RegExp(',', 'gm'), ' ')
+        classify: this.form.classify,
+        summary: this.form.summary,
+        inventory: this.form.inventory,
+        marketPrice: this.form.marketPrice,
+        discountPrice: this.form.discountPrice,
+        status: this.form.status,
+        image: this.form.image,
+        images: newImages,
+        introduction: this.$refs.ue.getUEContent()
       }
-      await this.$axios.post('/api/list/add', form)
-      await this.$set(this.form, 'name', '')
-      await this.$set(this.form, 'date', '')
-      await this.$set(this.form, 'address', [])
-      await this.$message.success('提交成功！')
+      console.log(form)
+      // await this.$axios.post('/api/list/add', form)
+      // await this.$set(this.form, 'name', '')
+      // await this.$message.success('提交成功！')
     }
   }
 }

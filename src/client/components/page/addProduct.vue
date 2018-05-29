@@ -8,32 +8,32 @@
         </div>
         <div class="container">
             <div class="form-box">
-                <el-form ref="form" :model="form" label-width="80px">
-                    <el-form-item label="商品名称">
+                <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+                    <el-form-item label="商品名称" prop="name">
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品分类">
-                        <el-select v-model="form.classify" placeholder="请选择">
+                    <el-form-item label="商品分类" prop="categoryId">
+                        <el-select v-model="form.categoryId" placeholder="请选择">
                             <el-option key="bbk" label="步步高" value="bbk"></el-option>
                             <el-option key="xtc" label="小天才" value="xtc"></el-option>
                             <el-option key="imoo" label="imoo" value="imoo"></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="商品简介">
+                    <el-form-item label="商品简介" prop="summary">
                         <el-input v-model="form.summary"></el-input>
                     </el-form-item>
-                    <el-form-item label="库存">
+                    <el-form-item label="库存" prop="inventory">
                         <el-input v-model="form.inventory"></el-input>
                     </el-form-item>
-                    <el-form-item label="市场价格">
+                    <el-form-item label="市场价格" prop="marketPrice">
                         <el-input v-model="form.marketPrice"></el-input>
                     </el-form-item>
-                    <el-form-item label="折扣价格">
+                    <el-form-item label="折扣价格" prop="discountPrice">
                         <el-input v-model="form.discountPrice"></el-input>
                     </el-form-item>
                     <el-form-item label="商品状态">
                     </el-form-item>
-                    <el-form-item label="封面图">
+                    <el-form-item label="封面图" prop="image">
                       <div class="el-upload_tip">请上传尺寸为372*300的jpg/png图片，且大小不能超过2M</div>
                       <el-upload
                         class="avatar-uploader"
@@ -46,7 +46,7 @@
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                       </el-upload>
                     </el-form-item>
-                    <el-form-item label="轮播图">
+                    <el-form-item label="轮播图" prop="images">
                       <el-upload
                         ref="uploadMulti"
                         class="upload-demo"
@@ -68,12 +68,12 @@
                       </el-upload>
                     </el-form-item>
                     <el-form-item label="商品说明">
-                      <div class="editor-container">
-                        <UE :defaultMsg=defaultMsg :config=config ref="ue"></UE>
-                      </div>
                     </el-form-item>
+                    <div class="editor-container">
+                      <UE :defaultMsg=defaultMsg :config=config ref="ue"></UE>
+                    </div>
                     <el-form-item>
-                        <el-button type="primary" @click="onSubmit">表单提交</el-button>
+                        <el-button type="primary" @click="onSubmit('form')">表单提交</el-button>
                         <el-button>取消</el-button>
                     </el-form-item>
                 </el-form>
@@ -91,8 +91,12 @@ export default {
     return {
       defaultMsg: '这里是UE测试',
       config: {
+        toolbars: [
+          ['fullscreen', 'source', '|', 'undo', 'redo', '|', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'subscript', 'superscript', 'removeformat', 'formatmatch', 'autotypeset', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|', 'rowspacingtop', 'rowspacingbottom', 'lineheight', '|', 'customstyle', 'paragraph', 'fontfamily', 'fontsize', '|', 'directionalityltr', 'directionalityrtl', 'indent', '|', 'justifyleft', 'justifyright', 'justifycenter', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|', 'link', 'unlink', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', 'edittip ', '|', 'insertimage', 'emotion', '|', 'background', 'template', '|', 'horizontal', 'date', 'time', 'spechars', '|', 'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', 'edittable', 'edittd', '|', 'preview', 'searchreplace', 'help']
+        ],
         initialFrameWidth: null,
-        initialFrameHeight: 350
+        initialFrameHeight: 500,
+        autoFloatEnabled: false
       },
       imageUrl: '',
       images: [
@@ -103,11 +107,11 @@ export default {
       ],
       form: {
         name: '',
-        classify: '',
+        categoryId: '',
         summary: '',
-        inventory: '',
-        marketPrice: '',
-        discountPrice: '',
+        inventory: 0,
+        marketPrice: 0,
+        discountPrice: 0,
         status: '',
         image: '',
         images: [
@@ -117,6 +121,33 @@ export default {
           }
         ],
         introduction: ''
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入商品名称', trigger: 'blur' },
+          { min: 3, max: 25, message: '长度在 3 到 25 个字', trigger: 'blur' }
+        ],
+        categoryId: [
+          { required: true, message: '请选择商品分类', trigger: 'change' }
+        ],
+        summary: [
+          { max: 5, message: '字数不能超过250个', trigger: 'blur' }
+        ],
+        inventory:[
+          { required: true, min: 0, message: '库存不能少于0个', trigger: 'blur' }
+        ],
+        marketPrice:[
+          { required: true, min: 0, message: '价格不能少于0元', trigger: 'blur' }
+        ],
+        discountPrice:[
+          { required: true, min: 0, message: '价格不能少于0元', trigger: 'blur' }
+        ],
+        image: [
+          { required: true, message: '请上传封面图片', trigger: 'change' }
+        ],
+        images: [
+          { type: 'array', required: true, message: '请至少上传一张图片', trigger: 'change' }
+        ]
       }
     }
   },
@@ -196,7 +227,20 @@ export default {
     beforeRemove (file, fileList) {
       return this.$confirm(`确定移除 ${file.name} ？`)
     },
-    async onSubmit () {
+    onSubmit (formName) {
+      this.$refs[formName].validate(async (valid) => {
+        console.log(valid)
+        if (valid) {
+          await this.productAdd()
+          await this.$refs[formName].resetFields()
+          alert('submit!');
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    async productAdd () {
       var newImages = [];
       for ( var i=0; i<this.images.length; i++) {
         if (!this.images[i].response){
@@ -214,7 +258,7 @@ export default {
       this.images
       var form = {
         name: this.form.name,
-        classify: this.form.classify,
+        categoryId: this.form.categoryId,
         summary: this.form.summary,
         inventory: this.form.inventory,
         marketPrice: this.form.marketPrice,
@@ -225,15 +269,39 @@ export default {
         introduction: this.$refs.ue.getUEContent()
       }
       console.log(form)
+      // await this.delay(0)
       // await this.$axios.post('/api/list/add', form)
-      // await this.$set(this.form, 'name', '')
-      // await this.$message.success('提交成功！')
+      // await this.initData()
+    },
+    async initData (){
+      var form = {
+        name: '',
+        categoryId: '',
+        summary: '',
+        inventory: 0,
+        marketPrice: 0,
+        discountPrice: 0,
+        status: '',
+        image: '',
+        images: [],
+        introduction: ''
+      }
+      this.form = form
+      console.log(this.form)
+    },
+    delay (s) {
+      return new Promise(function (resolve, reject) {
+        setTimeout(resolve, s)
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+  .editor-container {
+    margin-bottom: 18px;
+  }
   .el-upload_tip {
     font-size: 12px;
     line-height: 32px;

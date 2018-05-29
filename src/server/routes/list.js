@@ -17,6 +17,31 @@ var param = 'contentId INT NOT NULL AUTO_INCREMENT,'
     +'PRIMARY KEY ( contentId )'
 
 sql.createTable('vueTable' , param)
+
+let checkData = function (data, response){
+    console.log(data)
+    if (data.name == '') {
+        newData.msg = '请填写姓名'
+        newData.code = 10001
+        jsonWrite(response, newData);
+        return false
+    } else if (data.date == '') {
+        newData.msg = '请填写日期'
+        newData.code = 10001
+        jsonWrite(response, newData);
+        return false
+    } else if (data.address == '')  {
+        newData.msg = '请填写地址'
+        newData.code = 10001
+        jsonWrite(response, newData);
+        return false
+    }else {
+        newData.msg = ''
+        newData.code = 0
+        return true
+    }
+}
+
 router.get(api.list, function(request, response) {
 
     sql.fetchAllSqlData( 'vueTable' ).then(results => {
@@ -69,15 +94,19 @@ router.post(api.modList, function(request, response) {
 
 router.post(api.addList, function(request, response) {
     let addData = request.body
+    
+    let isOk = checkData(addData, response)
 
-    sql.insertSqlData( 'vueTable', addData  ).then(results => {
-        console.log(JSON.parse(JSON.stringify(results)))
-        jsonWrite(response, newData);
-    })
-    .catch(error => { 
-        console.log('caught', error.message);
-        new Error('error: '+error.message) 
-    });
+    if (isOk) {
+        sql.insertSqlData( 'vueTable', addData  ).then(results => {
+            console.log(JSON.parse(JSON.stringify(results)))
+            jsonWrite(response, newData);
+        })
+        .catch(error => { 
+            console.log('caught', error.message);
+            new Error('error: '+error.message) 
+        });
+    }
 });
 
 router.post(api.delList, function(request, response) {

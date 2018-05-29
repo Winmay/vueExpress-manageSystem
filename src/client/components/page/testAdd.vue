@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import axios from '../../router/ajaxModel'
 export default {
   data: function () {
     return {
@@ -109,11 +110,17 @@ export default {
         date: this.form.date,
         address: this.form.address.toString().replace(new RegExp(',', 'gm'), ' ')
       }
-      await this.$axios.post('/api/list/add', form)
-      await this.$set(this.form, 'name', '')
-      await this.$set(this.form, 'date', '')
-      await this.$set(this.form, 'address', [])
-      await this.$message.success('提交成功！')
+      // var data = await this.$axios.post('/api/list/add', form)
+      var data = await axios.ajaxPost('/api/list/add', form)
+      console.log(data)
+      if (data.code !== 0) {
+        await this.$message.error(data.msg)
+      } else {
+        await this.$set(this.form, 'name', '')
+        await this.$set(this.form, 'date', '')
+        await this.$set(this.form, 'address', [])
+        await this.$message.success('提交成功！')
+      }
     }
   }
 }

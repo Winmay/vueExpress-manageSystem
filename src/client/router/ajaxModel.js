@@ -4,7 +4,7 @@ export default {
   ajaxGet (api, params) {
     console.log(api);
     return new Promise((resolve,reject)=>{
-      axios.get(api)
+      axios.get(api, params)
         .then(response => {
           /*var resultJson = response.data
           if (resultJson.code !== 0) {

@@ -2,6 +2,7 @@
 
 var mysql = require('mysql')
 var config = require('./db.js')
+var Date = require('../public/js/date')
 
 /***创建链接池***/
 var pool = mysql.createPool({
@@ -56,7 +57,7 @@ var query = (sql,val) => {
 */
 var createTable = ( sqlName, sqlparam, comment ) => {
 	if( comment ) {
-		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 COMMENT=${comment};`
+		var _sql = `create table if not exists ${sqlName}( ${sqlparam} )ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8 COMMENT="${comment}";`
 		// console.log(_sql)
 		return query( _sql, [] )
 	} else {
@@ -74,7 +75,7 @@ var createTable = ( sqlName, sqlparam, comment ) => {
     +'avator VARCHAR(100) NOT NULL DEFAULT "",'
     +'PRIMARY KEY ( id )'
 
-createTable('comments ' , param)*/
+createTable('comments ' , param, '评论')*/
 
 
 /**
@@ -265,15 +266,25 @@ var selectSqlData = ( table, mode, param ) => {
 /***增加（插入）数据***/
 var insertSqlData = ( table, object ) => {
 	let addData = object
+    let time = new Date().format("yyyy-MM-dd hh:mm:ss")
     let param = ''
     let value = Object.values(addData);
+    let index = 0
     for( let key in addData ){
-        if( addData[key] == value[value.length-1] ){
+        /*if( addData[key] == value[value.length-1] ){
             param = param + key + '=?';
         }else{
             param = param + key + '=?,';
+        }*/
+        param = param + key + '=?,';
+        if( typeof addData[key] === 'object' ){
+        	value[index] = JSON.stringify(addData[key])
         }
+    	index++
     }
+    param = param + 'createTime=?,updateTime=?'
+    value.push(time)
+    value.push(time)
     console.log(addData)
     console.log('param:'+param)
     console.log('value:'+value)
@@ -292,15 +303,24 @@ insertSqlData( 'datasource', aaa, bbb ).then(res => {
 var updateSqlData = ( table, object, condition ) => {
 
 	let modData = object
+    let time = new Date().format("yyyy-MM-dd hh:mm:ss")
     let param = ''
     let value = Object.values(modData);
+    let index = 0
     for( let key in modData ){
-        if( modData[key] == value[value.length-1] ){
+        /*if( modData[key] == value[value.length-1] ){
             param = param + key + '=?';
         }else{
             param = param + key + '=?,';
+        }*/
+        param = param + key + '=?,';
+        if( typeof addData[key] === 'object' ){
+        	value[index] = JSON.stringify(addData[key])
         }
+    	index++
     }
+    param = param + 'updateTime=?'
+    value.push(time)
     console.log(modData)
     console.log('param:'+param)
     console.log('value:'+value)

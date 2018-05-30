@@ -26,10 +26,9 @@
                 <el-table-column header-align="center" type="selection" width="50"></el-table-column>
                 <el-table-column header-align="center" prop="contentId" label="商品ID" width="60">
                 </el-table-column>
-                <el-table-column header-align="center" prop="name
-                " label="商品名称" width="150">
+                <el-table-column header-align="center" prop="name" label="商品名称" width="150">
                 </el-table-column>
-                <el-table-column header-align="center" sortable prop="classify" label="商品分类" width="120">
+                <el-table-column header-align="center" sortable prop="categoryId" label="商品分类" width="120">
                 </el-table-column>
                 <el-table-column header-align="center" prop="inventory" label="库存" width="100">
                 </el-table-column>
@@ -82,10 +81,10 @@
 </template>
 
 <script>
+import axios from '../../router/ajaxModel'
 export default {
   data () {
     return {
-      url: './static/vuetable.json',
       tableData: [],
       totalPage: 0,
       cur_page: 1,
@@ -141,20 +140,28 @@ export default {
     },
     // 获取 easy-mock 的模拟数据
     async getData () {
-      // 开发环境使用 easy-mock 数据，正式环境使用 json 文件
-      /*
-      if (process.env.NODE_ENV === 'development') {
-        this.url = '/api/list/get'
-      };
-      await this.$axios.get(this.url, {
+      var data = await axios.ajaxGet('/api/product/get', {
+        params: {
+          pageIndex: this.cur_page
+        }
+      })
+      if (data.code !== 0) {
+        await this.$message.error(data.msg)
+      } else {
+        this.tableData = data.data.data
+        console.log(data.data)
+      }
+
+      /*await this.$axios.get('/api/product/get', {
         params: {
           pageIndex: this.cur_page
         }
       }).then((res) => {
         this.tableData = res.data.data
+        console.log(res.data.data)
         this.totalPage = res.data.count
-      })
-      */
+      })*/
+      
     },
     search () {
       this.is_search = true

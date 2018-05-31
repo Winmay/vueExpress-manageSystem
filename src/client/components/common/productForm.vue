@@ -1,4 +1,5 @@
 <template>
+<div>
   <el-form ref="form" :model="form" :rules="rules" label-width="80px">
     <el-form-item label="商品名称" prop="name">
       <el-input v-model="form.name"></el-input>
@@ -28,6 +29,9 @@
         <el-radio label="2">下架</el-radio>
       </el-radio-group>
     </el-form-item>
+    <el-dialog :visible.sync="dialogVisible">
+      <img width="100%" :src="dialogImageUrl" alt="">
+    </el-dialog>
     <el-form-item label="封面图" prop="image">
       <div class="el-upload_tip">请上传尺寸为372*300的jpg/png图片，且大小不能超过2M</div>
       <el-upload
@@ -67,11 +71,18 @@
     <div class="editor-container">
       <UE :defaultMsg=defaultMsg :config=config ref="ue"></UE>
     </div>
-    <el-form-item>
+    <el-form-item v-if="pageType === 'page'">
       <el-button type="primary" @click="onSubmit('form')">表单提交</el-button>
       <el-button>取消</el-button>
     </el-form-item>
-</el-form>
+  </el-form>
+  <div class="dialog-footer">
+    <span v-if="pageType === 'dialog'">
+      <el-button @click="$emit('closeEditDialog')">取 消</el-button>
+      <el-button type="primary" @click="_saveEdit('form')">确 定</el-button>
+    </span>
+  </div>
+</div>
 </template>
 <script>
 import UE from './ue.vue'
@@ -81,6 +92,8 @@ export default {
   components: {UE},
   data () {
     return {
+      dialogImageUrl: '',
+      dialogVisible: false,
       defaultMsg: '还没有编写商品详情哦，快来编写吧',
       config: {
         toolbars: [
@@ -143,6 +156,21 @@ export default {
   props: {
     pageType: {
       type: String //dialog 、page
+    },
+    saveEdit: {
+      type: Function
+    },
+    closeEditDialog: {
+      type: Function
+    },
+    formData: {
+      type: Object
+    }
+  },
+  created () {
+    if (this.formData) {
+      console.log(this.formData)
+      this.form = this.formData
     }
   },
   methods: {
@@ -209,7 +237,7 @@ export default {
     },
     handlePictureCardPreview (file) {
       this.dialogImageUrl = file.url
-      this.dialogVisible1 = true
+      this.dialogVisible = true
     },
     handleExceed (files, fileList) {
       this.$message.warning(`当前限制选择 9 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
@@ -283,6 +311,17 @@ export default {
       this.defaultMsg = '还没有编写商品详情哦，快来编写吧'
       this.images = []
     },
+    // 保存编辑
+    async _saveEdit (formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          await this.$emit('saveEdit',this.form)
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
     delay (s) {
       return new Promise(function (resolve, reject) {
         setTimeout(resolve, s)
@@ -326,5 +365,11 @@ export default {
     width: 186px;
     height: 150px;
     display: block;
+  }
+  .dialog-footer {
+    padding: 20px 0;
+    text-align: right;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
   }
 </style>

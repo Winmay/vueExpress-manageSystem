@@ -21,8 +21,8 @@ var param = 'contentId INT NOT NULL AUTO_INCREMENT COMMENT "商品 Id",'
     +'image VARCHAR(1000) NOT NULL COMMENT "商品封面图",'
     +'images TEXT NOT NULL COMMENT "商品轮播图",'
     +'introduction TEXT NOT NULL COMMENT "商品详细介绍",'
-    +'createTime DATETIME DEFAULT NULL COMMENT "创建时间",'
-    +'updateTime DATETIME DEFAULT NULL COMMENT "更新时间",'
+    +'createTime VARCHAR(20) DEFAULT NULL COMMENT "创建时间",'
+    +'updateTime VARCHAR(20) DEFAULT NULL COMMENT "更新时间",'
     +'PRIMARY KEY ( contentId )'
 
 sql.createTable('productTable' , param, '产品列表')
@@ -65,23 +65,32 @@ let checkData = function (data, response){
     }
 }
 
-router.get(api.allProduct, function(request, response) {
+router.get(api.allProduct, async function(request, response) {
 
-    sql.fetchAllSqlData( 'productTable' ).then(results => {
-        var newData = {
+    try {
+        let data = await sql.fetchAllSqlData( 'productTable' )
+        let count = JSON.parse(JSON.stringify(data)).length
+
+        let result = JSON.parse(JSON.stringify(data))
+
+        for(var i=0;i<result.length;i++){
+            result[i].images = JSON.parse(result[i].images)
+        }
+
+        let newData = {
             data: {
-                data: JSON.parse(JSON.stringify(results)),
-                count: JSON.parse(JSON.stringify(results)).length
+                data: result,
+                count: count
             },
             msg:'',
             code:0
         }
         jsonWrite(response, newData);
-    })
-    .catch(error => { 
+    } catch (error)  { 
         console.log('caught', error.message);
         new Error('error: '+error.message) 
-    });
+    }
+
 });
 
 router.get(api.getProduct, async function(request, response) {
@@ -95,9 +104,15 @@ router.get(api.getProduct, async function(request, response) {
 
         let data = await sql.fetchPageSqlData( 'productTable', pageIndex, 10 )
 
+        let result = JSON.parse(JSON.stringify(data))
+
+        for(var i=0;i<result.length;i++){
+            result[i].images = JSON.parse(result[i].images)
+        }
+
         let newData = {
             data: {
-                data: JSON.parse(JSON.stringify(data)),
+                data: result,
                 count: count
             },
             msg:'',
@@ -110,51 +125,51 @@ router.get(api.getProduct, async function(request, response) {
     }
 });
 
-router.post(api.modProduct, function(request, response) {
+router.post(api.modProduct, async function(request, response) {
     let modData = request.body
 
-    let isOk = checkData(addData, response)
+    let isOk = checkData(modData, response)
 
     if (isOk) {
-        sql.updateSqlData( 'productTable', modData, 'contentId='+modData['contentId']  ).then(results => {
-            console.log(JSON.parse(JSON.stringify(results)))
-            jsonWrite(response, newData);
-        })
-        .catch(error => { 
+        try {
+            let data = await sql.updateSqlData( 'productTable', modData, 'contentId='+modData['contentId'] )
+            console.log(JSON.parse(JSON.stringify(data)))
+            jsonWrite(response, newData)
+        } catch (error)  { 
             console.log('caught', error.message);
             new Error('error: '+error.message) 
-        });
+        }
     }
 });
 
-router.post(api.addProduct, function(request, response) {
+router.post(api.addProduct, async function(request, response) {
     let addData = request.body
 
     let isOk = checkData(addData, response)
 
     if (isOk) {
-        sql.insertSqlData( 'productTable', addData  ).then(results => {
-            console.log(JSON.parse(JSON.stringify(results)))
-            jsonWrite(response, newData);
-        })
-        .catch(error => { 
+        try {
+            let data = await sql.insertSqlData( 'productTable', addData )
+            console.log(JSON.parse(JSON.stringify(data)))
+            jsonWrite(response, newData)
+        } catch (error)  { 
             console.log('caught', error.message);
             new Error('error: '+error.message) 
-        });
+        }
     }
 });
 
-router.post(api.delProduct, function(request, response) {
+router.post(api.delProduct, async function(request, response) {
     let contentId = request.body.contentId
 
-    sql.deleteSqlData( 'productTable', 'contentId='+contentId  ).then(results => {
-        console.log(JSON.parse(JSON.stringify(results)))
-        jsonWrite(response, newData);
-    })
-    .catch(error => { 
+    try {
+        let data = await sql.deleteSqlData( 'productTable', 'contentId='+contentId )
+        console.log(JSON.parse(JSON.stringify(data)))
+        jsonWrite(response, newData)
+    } catch (error)  { 
         console.log('caught', error.message);
         new Error('error: '+error.message) 
-    });
+    }
 });
 
 module.exports = router;

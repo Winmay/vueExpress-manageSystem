@@ -49,7 +49,7 @@ export default {
               title: '添加产品'
             },
             {
-              index: 'classify',
+              index: 'category',
               title: '产品分类'
             }
           ]

@@ -304,23 +304,24 @@ var updateSqlData = ( table, object, condition ) => {
 
 	let modData = object
     let time = new Date().format("yyyy-MM-dd hh:mm:ss")
+    modData.updateTime = time
     let param = ''
     let value = Object.values(modData);
     let index = 0
     for( let key in modData ){
-        /*if( modData[key] == value[value.length-1] ){
+        if( modData[key] == value[value.length-1] ){
             param = param + key + '=?';
         }else{
             param = param + key + '=?,';
-        }*/
-        param = param + key + '=?,';
-        if( typeof addData[key] === 'object' ){
-        	value[index] = JSON.stringify(addData[key])
+        }
+        // param = param + key + '=?,';
+        if( typeof modData[key] === 'object' ){
+        	value[index] = JSON.stringify(modData[key])
         }
     	index++
     }
-    param = param + 'updateTime=?'
-    value.push(time)
+    // param = param + 'updateTime=?'
+    // value.push(time)
     console.log(modData)
     console.log('param:'+param)
     console.log('value:'+value)

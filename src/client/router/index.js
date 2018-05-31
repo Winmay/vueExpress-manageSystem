@@ -31,8 +31,8 @@ export default new Router({
           meta: { title: '添加产品' }
         },
         {
-          path: '/classify',
-          component: resolve => require(['../components/page/classify.vue'], resolve),
+          path: '/category',
+          component: resolve => require(['../components/page/category.vue'], resolve),
           meta: { title: '产品分类' }
         },
         {

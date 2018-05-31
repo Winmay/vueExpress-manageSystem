@@ -3,18 +3,13 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item><i class="el-icon-date"></i>产品管理</el-breadcrumb-item>
-                <el-breadcrumb-item>所有产品列表</el-breadcrumb-item>
+                <el-breadcrumb-item>产品分类</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="handle-box">
+                <el-button type="primary" icon="delete" class="handle-del mr10" @click="handleAdd">添加分类</el-button>
                 <el-button type="danger" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
-                <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
-                    <el-option key="1" label="广东省" value="广东省"></el-option>
-                    <el-option key="2" label="湖南省" value="湖南省"></el-option>
-                </el-select>
-                <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="search" @click="search">搜索</el-button>
             </div>
             <el-table
               :data="data"
@@ -23,22 +18,11 @@
               ref="multipleTable"
               @selection-change="handleSelectionChange">
                 <el-table-column header-align="center" align="center" type="selection" width="50"></el-table-column>
-                <el-table-column header-align="center" align="center" prop="contentId" label="商品ID" width="60">
+                <el-table-column header-align="center" align="center" prop="contentId" label="分类ID" width="60">
                 </el-table-column>
-                <el-table-column header-align="center" align="center" prop="name" label="商品名称" width="150">
+                <el-table-column header-align="center" align="center" prop="name" label="分类名称">
                 </el-table-column>
-                <el-table-column header-align="center" align="center" prop="image" label="商品封面" width="100">
-                  <template slot-scope="scope">
-                    <img  :src="scope.row.image" alt="" style="width: 80px;height: 80px">
-                  </template>
-                </el-table-column>
-                <el-table-column header-align="center" align="center" sortable prop="categoryId" label="商品分类" width="120">
-                </el-table-column>
-                <el-table-column header-align="center" align="center" prop="inventory" label="库存" width="70">
-                </el-table-column>
-                <el-table-column header-align="center" align="center" prop="marketPrice" label="市场价格" width="100">
-                </el-table-column>
-                <el-table-column header-align="center" align="center" prop="discountPrice" label="折扣价格" width="100">
+                <el-table-column header-align="center" align="center" prop="productCount" label="产品数" width="100">
                 </el-table-column>
                 <el-table-column header-align="center" align="center" label="操作" width="180">
                     <template slot-scope="scope">
@@ -54,13 +38,16 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="80%">
-            <ProductForm
-              :formData = "tableData[idx]"
-              :pageType=pageType
-              @closeEditDialog=_closeEditDialog
-              @saveEdit=_saveEdit>
-            </ProductForm>
+        <el-dialog :title="!addVisible ? '编辑' : '添加'" :visible.sync="editVisible" width="80%">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="分类名称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="cancleDialog">取 消</el-button>
+                <el-button type="primary" @click="() => !addVisible ? saveEdit() : addCategory()">确 定</el-button>
+            </span>
         </el-dialog>
 
         <!-- 删除提示框 -->
@@ -74,33 +61,30 @@
 
 <script>
 import axios from '../../router/ajaxModel'
-import ProductForm from '../common/productForm.vue'
 import Dialog from '../common/dialog.vue'
 export default {
-  components: {ProductForm, Dialog},
+  components: {Dialog},
   data () {
     return {
-      pageType: 'dialog',
       tableData: [],
       totalPage: 0,
       cur_page: 1,
       multipleSelection: [],
-      select_cate: '',
-      select_word: '',
       del_list: [],
-      is_search: false,
       editVisible: false,
       delVisible: false,
+      addVisible: false,
+      form: {
+        name: ''
+      },
       idx: -1
     }
   },
   created () {
-    this.getData()
+    this.getCategoryData()
   },
   computed: {
     data () {
-      return this.tableData
-      /*
       return this.tableData.filter((d) => {
         let isDel = false
         for (let i = 0; i < this.del_list.length; i++) {
@@ -109,32 +93,19 @@ export default {
             break
           }
         }
-        if (!isDel) {
-          if (d.categoryId.indexOf(this.select_cate) > -1 &&
-              (d.name.indexOf(this.select_word) > -1 ||
-                  d.categoryId.indexOf(this.select_word) > -1)
-          ) {
-            return d
-          }
-        }
+        return d
       })
-      */
     }
   },
   methods: {
     // 分页导航
     handleCurrentChange (val) {
       this.cur_page = val
-      this.getData()
+      this.getCategoryData()
     },
     // 获取 easy-mock 的模拟数据
-    async getData () {
-      // var data = await axios.ajaxGet('/api/product')
-      var data = await axios.ajaxGet('/api/product/get', {
-        params: {
-          pageIndex: this.cur_page
-        }
-      })
+    async getCategoryData () {
+      var data = await axios.ajaxGet('/api/category/get')
       if (data.code !== 0) {
         await this.$message.error(data.msg)
       } else {
@@ -143,18 +114,21 @@ export default {
         console.log(data.data)
       }
     },
-    search () {
-      this.is_search = true
-    },
     formatter (row, column) {
       return row.address
     },
     filterTag (value, row) {
       return row.tag === value
     },
+    handleAdd () {
+      this.form.name = ''
+      this.addVisible = true
+      this.editVisible = true
+    },
     handleEdit (index, row) {
       this.idx = index
       const item = this.tableData[index]
+      this.form = item
       this.editVisible = true
     },
     handleDelete (index, row) {
@@ -174,27 +148,44 @@ export default {
     handleSelectionChange (val) {
       this.multipleSelection = val
     },
+    cancleDialog () {
+      this.editVisible = false
+      this.addVisible = false
+    },
+    //添加分类
+    async addCategory () {
+      console.log('addCategory')
+      var data = await axios.ajaxPost('/api/category/add', this.form)
+      if (data.code !== 0) {
+        await this.$message.error(data.msg)
+      } else {
+        this.form.name = ''
+        await this.$message.success('提交成功！')
+        this.editVisible = false
+        this.addVisible = false
+        this.getCategoryData()
+      }
+    },
     // 保存编辑
-    async _saveEdit (form) {
-      console.log(form)
-      await this.$set(this.tableData, this.idx, form)
-      await axios.ajaxPost('/api/product/mod', form)
+    async saveEdit () {
+      console.log('editCategory')
+      await this.$set(this.tableData, this.idx, this.form)
+      await axios.ajaxPost('/api/category/mod', this.form)
       this.editVisible = false
       await this.$message.success(`修改第 ${this.idx + 1} 行成功`)
-    },
-    _closeEditDialog () {
-      this.editVisible = false
+      this.form = {
+        name: ''
+      }
     },
     // 确定删除
     async deleteRow () {
       console.log(this.idx)
       console.log(this.tableData[this.idx].contentId)
-      await axios.ajaxPost('/api/product/del', {
+      await axios.ajaxPost('/api/category/del', {
         contentId: this.tableData[this.idx].contentId
       })
       await this.tableData.splice(this.idx, 1)
       await this.$message.success('删除成功')
-      // await this.getData()
       this.delVisible = false
     }
   }

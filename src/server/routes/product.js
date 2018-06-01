@@ -100,7 +100,7 @@ router.get(api.getProduct, async function(request, response) {
     let count = 0
     try {
         let countData = await sql.selectSqlData( 'productTable', 'count' )
-        count = JSON.parse(JSON.stringify(countData[0]))['count( * )']
+        count = JSON.parse(JSON.stringify(countData[0]))['count']
 
         let data = await sql.fetchPageSqlData( 'productTable', pageIndex, 10 )
 

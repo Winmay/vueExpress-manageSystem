@@ -64,7 +64,7 @@ router.get(api.getList, async function(request, response) {
     let count = 0
     try {
         let countData = await sql.selectSqlData( 'vueTable', 'count' )
-        count = JSON.parse(JSON.stringify(countData[0]))['count( * )']
+        count = JSON.parse(JSON.stringify(countData[0]))['count']
 
         let data = await sql.fetchPageSqlData( 'vueTable', pageIndex, 10 )
 

@@ -6,10 +6,14 @@
     </el-form-item>
     <el-form-item label="商品分类" prop="categoryId">
       <el-select v-model="form.categoryId" placeholder="请选择">
-        <el-option key="10001" label="步步高" value="10001"></el-option>
-        <el-option key="10002" label="小天才" value="10002"></el-option>
-        <el-option key="10003" label="imoo" value="10003"></el-option>
+        <el-option
+          v-for="item in categoryData"
+          :key="item.contentId"
+          :label="item.name"
+          :value="item.contentId">
+        </el-option>
       </el-select>
+      <el-button type="primary" icon="add" @click="handleAdd">添加分类</el-button>
     </el-form-item>
     <el-form-item label="商品简介" prop="summary">
       <el-input v-model="form.summary"></el-input>
@@ -82,16 +86,26 @@
       <el-button type="primary" @click="_saveEdit('form')">确 定</el-button>
     </span>
   </div>
+
+  <!-- 编辑弹出框 -->
+  <AddCategoryDialog
+    :editVisible.sync="addVisible"
+    @cancleDialog = "addVisible=false"
+    @getCategoryData = "getCategoryData">
+  </AddCategoryDialog>
 </div>
 </template>
 <script>
 import UE from './ue.vue'
 import axios from '../../router/ajaxModel'
+import AddCategoryDialog from '../common/addCategoryDialog.vue'
 export default {
   name: 'ProductForm',
-  components: {UE},
+  components: {UE, AddCategoryDialog},
   data () {
     return {
+      addVisible: false,
+      categoryData: [],
       dialogImageUrl: '',
       dialogVisible: false,
       defaultMsg: '还没有编写商品详情哦，快来编写吧',
@@ -168,12 +182,24 @@ export default {
     }
   },
   created () {
+    this.getCategoryData()
     if (this.formData) {
       console.log(this.formData)
       this.form = this.formData
     }
   },
   methods: {
+    handleAdd () {
+      this.addVisible = true
+    },
+    async getCategoryData () {
+      var data = await axios.ajaxGet('/api/category/get')
+      if (data.code !== 0) {
+        await this.$message.error(data.msg)
+      } else {
+        this.categoryData = data.data.data
+      }
+    },
     imageForm (file) {
       const isJPG = file.type === 'image/pjpeg' || file.type === 'image/jpeg'
       const isPng = file.type === 'image/png' || file.type === 'image/x-png'

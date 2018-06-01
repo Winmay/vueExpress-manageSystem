@@ -8,7 +8,7 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" icon="delete" class="handle-del mr10" @click="handleAdd">添加分类</el-button>
+                <el-button type="primary" icon="add" class="handle-del mr10" @click="handleAdd">添加分类</el-button>
                 <el-button type="danger" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
             </div>
             <el-table
@@ -38,22 +38,20 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog :title="!addVisible ? '编辑' : '添加'" :visible.sync="editVisible" width="80%">
-            <el-form ref="form" :model="form" label-width="80px">
-                <el-form-item label="分类名称">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="cancleDialog">取 消</el-button>
-                <el-button type="primary" @click="() => !addVisible ? saveEdit() : addCategory()">确 定</el-button>
-            </span>
-        </el-dialog>
+        <AddCategoryDialog
+          :addVisible.sync="addVisible"
+          :editVisible.sync="editVisible"
+          :formData = "!addVisible ? tableData[idx] : null"
+          @cancleDialog = "cancleDialog"
+          @saveEdit = "saveEdit"
+          @getCategoryData = "getCategoryData">
+        </AddCategoryDialog>
 
         <!-- 删除提示框 -->
         <Dialog 
           :delVisible.sync="delVisible"
           @deleteRow="deleteRow"
+          @delVisibleChange="delVisibleChange"
           @cancleDialog="delVisible = false">
         </Dialog>
     </div>
@@ -62,8 +60,9 @@
 <script>
 import axios from '../../router/ajaxModel'
 import Dialog from '../common/dialog.vue'
+import AddCategoryDialog from '../common/addCategoryDialog.vue'
 export default {
-  components: {Dialog},
+  components: {Dialog, AddCategoryDialog},
   data () {
     return {
       tableData: [],
@@ -74,9 +73,6 @@ export default {
       editVisible: false,
       delVisible: false,
       addVisible: false,
-      form: {
-        name: ''
-      },
       idx: -1
     }
   },
@@ -103,7 +99,6 @@ export default {
       this.cur_page = val
       this.getCategoryData()
     },
-    // 获取 easy-mock 的模拟数据
     async getCategoryData () {
       var data = await axios.ajaxGet('/api/category/get')
       if (data.code !== 0) {
@@ -121,15 +116,14 @@ export default {
       return row.tag === value
     },
     handleAdd () {
-      this.form.name = ''
       this.addVisible = true
       this.editVisible = true
+      // console.log(this.addVisible)
     },
     handleEdit (index, row) {
       this.idx = index
-      const item = this.tableData[index]
-      this.form = item
       this.editVisible = true
+      // console.log(this.addVisible)
     },
     handleDelete (index, row) {
       this.idx = index
@@ -152,30 +146,16 @@ export default {
       this.editVisible = false
       this.addVisible = false
     },
-    //添加分类
-    async addCategory () {
-      console.log('addCategory')
-      var data = await axios.ajaxPost('/api/category/add', this.form)
-      if (data.code !== 0) {
-        await this.$message.error(data.msg)
-      } else {
-        this.form.name = ''
-        await this.$message.success('提交成功！')
-        this.editVisible = false
-        this.addVisible = false
-        this.getCategoryData()
-      }
+    delVisibleChange (val) {
+      this.delVisible = val
     },
     // 保存编辑
-    async saveEdit () {
+    async saveEdit (form) {
       console.log('editCategory')
-      await this.$set(this.tableData, this.idx, this.form)
-      await axios.ajaxPost('/api/category/mod', this.form)
+      await this.$set(this.tableData, this.idx, form)
+      await axios.ajaxPost('/api/category/mod', form)
       this.editVisible = false
       await this.$message.success(`修改第 ${this.idx + 1} 行成功`)
-      this.form = {
-        name: ''
-      }
     },
     // 确定删除
     async deleteRow () {

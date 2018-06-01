@@ -185,9 +185,9 @@ var fetchDistinctSqlData = ( table, param ) => {
 var fetchCountSqlData = ( table, param ) => {
 	//param为*时，统计表中有多少条数据
 	if( param ){
-    	var _sql = `select count( ${param} ) from ${table}; `
+    	var _sql = `select count( ${param} ) as count from ${table}; `
     }else{
-    	var _sql = `select count( * ) from ${table}; `
+    	var _sql = `select count( * ) as count from ${table}; `
     }
     return query(_sql)
 }

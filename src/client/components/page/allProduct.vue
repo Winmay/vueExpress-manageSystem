@@ -67,6 +67,7 @@
         <Dialog 
           :delVisible.sync="delVisible"
           @deleteRow="deleteRow"
+          @delVisibleChange="delVisibleChange"
           @cancleDialog="delVisible = false">
         </Dialog>
     </div>
@@ -184,6 +185,9 @@ export default {
     },
     _closeEditDialog () {
       this.editVisible = false
+    },
+    delVisibleChange (val) {
+      this.delVisible = val
     },
     // 确定删除
     async deleteRow () {

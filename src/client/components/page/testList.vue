@@ -94,7 +94,7 @@ export default {
       idx: -1
     }
   },
-  created () {
+  mounted () {
     this.getData()
   },
   computed: {

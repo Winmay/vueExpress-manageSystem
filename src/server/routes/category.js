@@ -35,6 +35,12 @@ let checkData = function (data, response){
 router.get(api.getCategory, async function(request, response) {
 
     try {
+        let productCountData = await sql.selectGroupSqlData( 'producttable', 'categoryId, count(categoryId) as count', 'categoryId' )
+        let countData = JSON.parse(JSON.stringify(productCountData))
+        console.log(countData)
+        for (var i=0;i<countData.length;i++) {
+            await sql.updateSqlData( 'categoryTable', {productCount: countData[i].count}, 'contentId='+countData[i].categoryId )
+        }
         let data = await sql.fetchAllSqlData( 'categoryTable' )
         let count = JSON.parse(JSON.stringify(data)).length
 

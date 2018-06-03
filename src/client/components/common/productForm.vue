@@ -1,11 +1,11 @@
 <template>
 <div>
-  <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+  <el-form ref="form" :model="data" :rules="rules" label-width="80px">
     <el-form-item label="商品名称" prop="name">
-      <el-input v-model="form.name"></el-input>
+      <el-input v-model="data.name"></el-input>
     </el-form-item>
     <el-form-item label="商品分类" prop="categoryId">
-      <el-select v-model="form.categoryId" placeholder="请选择">
+      <el-select v-model="data.categoryId" placeholder="请选择">
         <el-option
           v-for="item in categoryData"
           :key="item.contentId"
@@ -16,21 +16,21 @@
       <el-button type="primary" icon="add" @click="handleAdd">添加分类</el-button>
     </el-form-item>
     <el-form-item label="商品简介" prop="summary">
-      <el-input v-model="form.summary"></el-input>
+      <el-input v-model="data.summary"></el-input>
     </el-form-item>
     <el-form-item label="库存" prop="inventory">
-      <el-input v-model="form.inventory"></el-input>
+      <el-input v-model="data.inventory"></el-input>
     </el-form-item>
     <el-form-item label="市场价格" prop="marketPrice">
-      <el-input v-model="form.marketPrice"></el-input>
+      <el-input v-model="data.marketPrice"></el-input>
     </el-form-item>
     <el-form-item label="折扣价格" prop="discountPrice">
-      <el-input v-model="form.discountPrice"></el-input>
+      <el-input v-model="data.discountPrice"></el-input>
     </el-form-item>
     <el-form-item label="商品状态">
-      <el-radio-group v-model="form.status">
-        <el-radio label="1">在售</el-radio>
-        <el-radio label="2">下架</el-radio>
+      <el-radio-group v-model="data.status">
+        <el-radio :label="1">在售</el-radio>
+        <el-radio :label="2">下架</el-radio>
       </el-radio-group>
     </el-form-item>
     <el-dialog :visible.sync="dialogVisible">
@@ -46,6 +46,7 @@
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
+        <img v-else-if="data.image" :src="data.image" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
     </el-form-item>
@@ -57,7 +58,7 @@
         name="photos"
         multiple
         list-type="picture"
-        :file-list="form.images"
+        :file-list="data.images"
         :before-upload="beforeUpload"
         :on-preview="handlePictureCardPreview"
         :on-remove="handleRemove"
@@ -108,7 +109,7 @@ export default {
       categoryData: [],
       dialogImageUrl: '',
       dialogVisible: false,
-      defaultMsg: '还没有编写商品详情哦，快来编写吧',
+      // defaultMsg: '还没有编写商品详情哦，快来编写吧',
       config: {
         toolbars: [
           ['fullscreen', 'source', '|', 'undo', 'redo', '|', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'subscript', 'superscript', 'removeformat', 'formatmatch', 'autotypeset', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|', 'rowspacingtop', 'rowspacingbottom', 'lineheight', '|', 'customstyle', 'paragraph', 'fontfamily', 'fontsize', '|', 'directionalityltr', 'directionalityrtl', 'indent', '|', 'justifyleft', 'justifyright', 'justifycenter', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|', 'link', 'unlink', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', 'edittip ', '|', 'insertimage', 'emotion', '|', 'background', 'template', '|', 'horizontal', 'date', 'time', 'spechars', '|', 'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', 'edittable', 'edittd', '|', 'preview', 'searchreplace', 'help']
@@ -181,12 +182,28 @@ export default {
       type: Object
     }
   },
-  created () {
+  computed: {
+    data () {
+      console.log(this.formData)
+      return this.formData ? this.formData : this.form
+    },
+    defaultMsg: {
+      get () {
+        return this.formData ? this.formData.introduction : '还没有编写商品详情哦，快来编写吧'
+      },
+      set (val) {
+        console.log(val)
+        return val
+      }
+    }
+  },
+  activated () {
     this.getCategoryData()
-    if (this.formData) {
+    /*if (this.formData) {
       console.log(this.formData)
       this.form = this.formData
-    }
+      this.defaultMsg = this.form.introduction
+    }*/
   },
   methods: {
     handleAdd () {
@@ -272,16 +289,6 @@ export default {
       return this.$confirm(`确定移除 ${file.name} ？`)
     },
     onSubmit (formName) {
-      this.$refs[formName].validate(async (valid) => {
-        if (valid) {
-          await this.productAdd()
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-    },
-    async productAdd () {
       var newImages = [];
       for ( var i=0; i<this.images.length; i++) {
         if (!this.images[i].response){
@@ -296,7 +303,19 @@ export default {
           })
         }
       }
-      this.images
+      this.form.images = newImages
+
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          await this.productAdd()
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    async productAdd () {
+
       var form = {
         name: this.form.name,
         categoryId: this.form.categoryId,
@@ -306,7 +325,7 @@ export default {
         discountPrice: this.form.discountPrice,
         status: this.form.status,
         image: this.form.image,
-        images: newImages,
+        images: this.form.images,
         introduction: this.$refs.ue.getUEContent()
       }
       // await this.delay(0)
@@ -339,6 +358,7 @@ export default {
     },
     // 保存编辑
     async _saveEdit (formName) {
+      this.form.introduction = this.$refs.ue.getUEContent()
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
           await this.$emit('saveEdit',this.form)

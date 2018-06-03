@@ -263,6 +263,15 @@ var selectSqlData = ( table, mode, param ) => {
 	console.log(JSON.parse(JSON.stringify(res)))
 })*/
 
+var selectGroupSqlData = ( table, param, groupName) => {
+	//将查询结果按照某一列或多列的值分组，值相等的为一组
+	var _sql = `select ${param} from ${table} group by ${groupName}; `
+    return query(_sql)
+}
+/*selectGroupSqlData( 'producttable', 'categoryId, count(categoryId) as count', 'categoryId' ).then(res => {
+	console.log(JSON.parse(JSON.stringify(res)))
+})*/
+
 /***增加（插入）数据***/
 var insertSqlData = ( table, object ) => {
 	let addData = object
@@ -361,6 +370,7 @@ module.exports = {
 	fetchSearchSqlData,		//搜索
 	fetchPageSqlData,		//分页数据查找
 	selectSqlData,			//排序查询、去重查询、统计函数查询
+	selectGroupSqlData,		//分组查询
 	insertSqlData,			//增加（插入）数据
 	updateSqlData,			//更新数据
 	deleteSqlData			//删除数据

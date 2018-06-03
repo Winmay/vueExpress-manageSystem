@@ -20,6 +20,10 @@ a {
     text-decoration: none
 }
 
+#edui_fixedlayer {
+    z-index: 2300 !important;
+}
+
 .content-box {
     position: absolute;
     left: 250px;

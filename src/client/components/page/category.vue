@@ -76,7 +76,7 @@ export default {
       idx: -1
     }
   },
-  created () {
+  activated () {
     this.getCategoryData()
   },
   computed: {

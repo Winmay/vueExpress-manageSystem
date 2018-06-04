@@ -74,10 +74,10 @@
     <el-form-item label="商品说明">
     </el-form-item>
     <div class="editor-container">
-      <UE :defaultMsg=defaultMsg :config=config ref="ue"></UE>
+      <UE @ready="editorReady" :defaultMsg=defaultMsg :config=config ref="ue"></UE>
     </div>
     <el-form-item v-if="pageType === 'page'">
-      <el-button type="primary" @click="onSubmit('form')">表单提交</el-button>
+      <el-button type="primary" @click="onSubmit('form')">提交</el-button>
       <el-button>取消</el-button>
     </el-form-item>
   </el-form>
@@ -109,7 +109,7 @@ export default {
       categoryData: [],
       dialogImageUrl: '',
       dialogVisible: false,
-      // defaultMsg: '还没有编写商品详情哦，快来编写吧',
+      defaultMsg: '还没有编写商品详情哦，快来编写吧',
       config: {
         toolbars: [
           ['fullscreen', 'source', '|', 'undo', 'redo', '|', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'subscript', 'superscript', 'removeformat', 'formatmatch', 'autotypeset', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|', 'rowspacingtop', 'rowspacingbottom', 'lineheight', '|', 'customstyle', 'paragraph', 'fontfamily', 'fontsize', '|', 'directionalityltr', 'directionalityrtl', 'indent', '|', 'justifyleft', 'justifyright', 'justifycenter', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|', 'link', 'unlink', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', 'edittip ', '|', 'insertimage', 'emotion', '|', 'background', 'template', '|', 'horizontal', 'date', 'time', 'spechars', '|', 'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', 'edittable', 'edittd', '|', 'preview', 'searchreplace', 'help']
@@ -187,23 +187,9 @@ export default {
       console.log(this.formData)
       return this.formData ? this.formData : this.form
     },
-    defaultMsg: {
-      get () {
-        return this.formData ? this.formData.introduction : '还没有编写商品详情哦，快来编写吧'
-      },
-      set (val) {
-        console.log(val)
-        return val
-      }
-    }
   },
   activated () {
     this.getCategoryData()
-    /*if (this.formData) {
-      console.log(this.formData)
-      this.form = this.formData
-      this.defaultMsg = this.form.introduction
-    }*/
   },
   methods: {
     handleAdd () {
@@ -326,9 +312,8 @@ export default {
         status: this.form.status,
         image: this.form.image,
         images: this.form.images,
-        introduction: this.$refs.ue.getUEContent()
+        introduction: this.form.introduction
       }
-      // await this.delay(0)
       console.log(form)
       var data = await axios.ajaxPost('/api/product/add', form)
       if (data.code !== 0) {
@@ -353,24 +338,39 @@ export default {
       }
       this.form = form
       this.imageUrl = ''
-      this.defaultMsg = '还没有编写商品详情哦，快来编写吧'
+      this.$refs.ue.setText('还没有编写商品详情哦，快来编写吧'); //ue是父级在组件上加的 ref="ue"属性
       this.images = []
     },
     // 保存编辑
     async _saveEdit (formName) {
-      this.form.introduction = this.$refs.ue.getUEContent()
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
-          await this.$emit('saveEdit',this.form)
+          await this.$emit('saveEdit',this.formData)
         } else {
           console.log('error submit!!');
           return false;
         }
       });
     },
-    delay (s) {
+    editorReady(instance) {
+      if (this.formData) {
+        instance.setContent(this.formData.introduction);
+        instance.addListener('contentChange', () => {
+          this.formData.introduction = instance.getContent();
+        })
+      } else {
+        instance.setContent(this.form.introduction);
+        instance.addListener('contentChange', () => {
+          this.form.introduction = instance.getContent();
+        })
+      }
+    },
+    delay (s, next) {
       return new Promise(function (resolve, reject) {
-        setTimeout(resolve, s)
+        setTimeout(()=>{
+          next()
+          resolve()
+        }, s)
       })
     }
   }

@@ -24,6 +24,14 @@ a {
     z-index: 2300 !important;
 }
 
+.el-dialog__wrapper {
+    z-index: 20007 !important;
+}
+
+.el-message {
+    z-index: 30000 !important;
+}
+
 .content-box {
     position: absolute;
     left: 250px;

@@ -54,14 +54,22 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="80%">
-            <ProductForm
-              :formData = "tableData[idx]"
-              :pageType=pageType
-              @closeEditDialog=_closeEditDialog
-              @saveEdit=_saveEdit>
-            </ProductForm>
-        </el-dialog>
+        <div class="el-dialog__wrapper" style="background: rgba(0,0,0,.5)" v-if="editVisible">
+          <div class="el-dialog" style="width: 80%; margin-top: 15vh;">
+              <div class="el-dialog__header">
+                <span class="el-dialog__title">编辑</span>
+                <button @click=_closeEditDialog type="button" class="el-dialog__headerbtn"><i class="el-dialog__close el-icon el-icon-close"></i></button>
+              </div>
+              <div class="el-dialog__body">
+                <ProductForm
+                  :formData = "tableData[idx]"
+                  :pageType=pageType
+                  @closeEditDialog=_closeEditDialog
+                  @saveEdit=_saveEdit>
+                </ProductForm>
+              </div>
+          </div>
+        </div>
 
         <!-- 删除提示框 -->
         <Dialog 
@@ -180,8 +188,8 @@ export default {
       console.log(form)
       await this.$set(this.tableData, this.idx, form)
       await axios.ajaxPost('/api/product/mod', form)
-      this.editVisible = false
       await this.$message.success(`修改第 ${this.idx + 1} 行成功`)
+      this.editVisible = false
     },
     _closeEditDialog () {
       this.editVisible = false

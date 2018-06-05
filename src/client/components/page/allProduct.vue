@@ -33,12 +33,37 @@
                   </template>
                 </el-table-column>
                 <el-table-column header-align="center" align="center" sortable prop="categoryId" label="商品分类" width="120">
+                  <template slot-scope="scope">
+                    <template v-for="item in categoryData" v-if="item.contentId === scope.row.categoryId" >
+                      {{ item.name }}
+                    </template>
+                  </template>
                 </el-table-column>
-                <el-table-column header-align="center" align="center" prop="inventory" label="库存" width="70">
+                <el-table-column header-align="center" align="center" prop="inventory" label="库存(件)" width="70">
                 </el-table-column>
-                <el-table-column header-align="center" align="center" prop="marketPrice" label="市场价格" width="100">
+                <el-table-column header-align="center" align="center" prop="marketPrice" label="市场价格(元)" width="100">
                 </el-table-column>
-                <el-table-column header-align="center" align="center" prop="discountPrice" label="折扣价格" width="100">
+                <el-table-column header-align="center" align="center" prop="discountPrice" label="折扣价格(元)" width="100">
+                </el-table-column>
+                <el-table-column header-align="center" align="center" prop="status" label="状态" width="50">
+                  <template slot-scope="scope">
+                    {{ scope.row.status === 1 ? '在售' : '下架' }}
+                  </template>
+                </el-table-column>
+                <el-table-column header-align="center" align="center" prop="carousel" label="首页轮播" width="80">
+                  <template slot-scope="scope">
+                    {{ scope.row.carousel === 1 ? '' : '是' }}
+                  </template>
+                </el-table-column>
+                <el-table-column header-align="center" align="center" prop="new" label="首页新品" width="80">
+                  <template slot-scope="scope">
+                    {{ scope.row.new === 1 ? '' : '是' }}
+                  </template>
+                </el-table-column>
+                <el-table-column header-align="center" align="center" prop="hot" label="首页热销" width="80">
+                  <template slot-scope="scope">
+                    {{ scope.row.hot === 1 ? '' : '是' }}
+                  </template>
                 </el-table-column>
                 <el-table-column header-align="center" align="center" label="操作" width="180">
                     <template slot-scope="scope">
@@ -82,15 +107,18 @@
 </template>
 
 <script>
+import msg from '../../router/messageBox'
 import axios from '../../router/ajaxModel'
 import ProductForm from '../common/productForm.vue'
 import Dialog from '../common/dialog.vue'
 export default {
   components: {ProductForm, Dialog},
+  mixins: [msg],
   data () {
     return {
       pageType: 'dialog',
       tableData: [],
+      categoryData: [],
       totalPage: 0,
       cur_page: 1,
       multipleSelection: [],
@@ -105,11 +133,12 @@ export default {
   },
   mounted () {
     this.getData()
+    this.getCategoryData()
   },
   computed: {
     data () {
-      return this.tableData
-      /*
+      // return this.tableData
+      
       return this.tableData.filter((d) => {
         let isDel = false
         for (let i = 0; i < this.del_list.length; i++) {
@@ -119,15 +148,15 @@ export default {
           }
         }
         if (!isDel) {
-          if (d.categoryId.indexOf(this.select_cate) > -1 &&
-              (d.name.indexOf(this.select_word) > -1 ||
-                  d.categoryId.indexOf(this.select_word) > -1)
-          ) {
+          // if (d.categoryId.indexOf(this.select_cate) > -1 &&
+          //     (d.name.indexOf(this.select_word) > -1 ||
+          //         d.categoryId.indexOf(this.select_word) > -1)
+          // ) {
             return d
-          }
+          // }
         }
       })
-      */
+      
     }
   },
   methods: {
@@ -152,6 +181,14 @@ export default {
         console.log(data.data)
       }
     },
+    async getCategoryData () {
+      var data = await axios.ajaxGet('/api/category/get')
+      if (data.code !== 0) {
+        await this.$message.error(data.msg)
+      } else {
+        this.categoryData = data.data.data
+      }
+    },
     search () {
       this.is_search = true
     },
@@ -170,15 +207,26 @@ export default {
       this.idx = index
       this.delVisible = true
     },
-    delAll () {
+    async delAll () {
       const length = this.multipleSelection.length
-      let str = ''
-      this.del_list = this.del_list.concat(this.multipleSelection)
-      for (let i = 0; i < length; i++) {
-        str += this.multipleSelection[i].name + ' '
+      if( length <= 0){
+        this.$message.error('请选择需要删除的数据')
+        return;
       }
-      this.$message.error('删除了' + str)
-      this.multipleSelection = []
+      let isOk = await this.confirm('此操作将永久删除该文件, 是否继续?')
+      if (isOk) {
+        let str = ''
+        this.del_list = this.del_list.concat(this.multipleSelection)
+        for (let i = 0; i < length; i++) {
+          str += this.multipleSelection[i].name + ' '
+        }
+        await axios.ajaxPost('/api/product/delAll', {
+          delAll: length === this.tableData.length,
+          delData: this.multipleSelection
+        })
+        this.$message.error('删除了' + str)
+        this.multipleSelection = []
+      }
     },
     handleSelectionChange (val) {
       this.multipleSelection = val

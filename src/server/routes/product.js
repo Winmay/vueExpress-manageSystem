@@ -18,6 +18,9 @@ var param = 'contentId INT NOT NULL AUTO_INCREMENT COMMENT "商品 Id",'
     +'marketPrice DECIMAL(10,2) NOT NULL DEFAULT "0" COMMENT "商品原价",'
     +'discountPrice DECIMAL(10,2) NOT NULL DEFAULT "0" COMMENT "商品折扣价",'
     +'status INT(6) NOT NULL DEFAULT "1" COMMENT "商品状态.1- 在售 2- 下架 3- 删除",'
+    +'carousel INT(6) NOT NULL DEFAULT "1" COMMENT "是否首页轮播.1- 否 2- 是",'
+    +'new INT(6) NOT NULL DEFAULT "1" COMMENT "是否首页新品.1- 否 2- 是",'
+    +'hot INT(6) NOT NULL DEFAULT "1" COMMENT "是否首页热销.1- 否 2- 是",'
     +'image VARCHAR(1000) NOT NULL COMMENT "商品封面图",'
     +'images TEXT NOT NULL COMMENT "商品轮播图",'
     +'introduction TEXT NOT NULL COMMENT "商品详细介绍",'
@@ -164,6 +167,32 @@ router.post(api.delProduct, async function(request, response) {
 
     try {
         let data = await sql.deleteSqlData( 'productTable', 'contentId='+contentId )
+        console.log(JSON.parse(JSON.stringify(data)))
+        jsonWrite(response, newData)
+    } catch (error)  { 
+        console.log('caught', error.message);
+        new Error('error: '+error.message) 
+    }
+});
+
+router.post(api.delAllProduct, async function(request, response) {
+    let delData = request.body.delData
+    let contentIds = ''
+    let data = []
+
+    try {
+        if (request.body.delAll) {
+            data = await sql.deleteSqlData( 'productTable' )
+        } else {
+            for (var i=0; i<delData.length; i++) {
+                if (i !== (delData.length-1)) {
+                    contentIds = contentIds + delData[i].contentId + ','
+                } else {
+                    contentIds = contentIds + delData[i].contentId
+                }
+            }
+            data = await sql.deleteSqlData( 'productTable', 'contentId IN (' + contentIds + ')' )
+        }
         console.log(JSON.parse(JSON.stringify(data)))
         jsonWrite(response, newData)
     } catch (error)  { 

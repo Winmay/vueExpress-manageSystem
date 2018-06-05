@@ -32,6 +32,10 @@ a {
     z-index: 30000 !important;
 }
 
+.el-select-dropdown.el-popper {
+    z-index: 20008 !important;
+}
+
 .content-box {
     position: absolute;
     left: 250px;

@@ -58,11 +58,13 @@
 </template>
 
 <script>
+import msg from '../../router/messageBox'
 import axios from '../../router/ajaxModel'
 import Dialog from '../common/dialog.vue'
 import AddCategoryDialog from '../common/addCategoryDialog.vue'
 export default {
   components: {Dialog, AddCategoryDialog},
+  mixins: [msg],
   data () {
     return {
       tableData: [],
@@ -84,12 +86,14 @@ export default {
       return this.tableData.filter((d) => {
         let isDel = false
         for (let i = 0; i < this.del_list.length; i++) {
-          if (d.name === this.del_list[i].name) {
+          if (d.contentId === this.del_list[i].contentId) {
             isDel = true
             break
           }
         }
-        return d
+        if (!isDel) {
+          return d
+        }
       })
     }
   },
@@ -129,15 +133,27 @@ export default {
       this.idx = index
       this.delVisible = true
     },
-    delAll () {
+    async delAll () {
       const length = this.multipleSelection.length
-      let str = ''
-      this.del_list = this.del_list.concat(this.multipleSelection)
-      for (let i = 0; i < length; i++) {
-        str += this.multipleSelection[i].name + ' '
+      if( length <= 0){
+        this.$message.error('请选择需要删除的数据')
+        return;
       }
-      this.$message.error('删除了' + str)
-      this.multipleSelection = []
+
+      let isOk = await this.confirm('此操作将永久删除该文件, 是否继续?')
+      if (isOk) {
+        let str = ''
+        this.del_list = this.del_list.concat(this.multipleSelection)
+        for (let i = 0; i < length; i++) {
+          str += this.multipleSelection[i].name + ' '
+        }
+        await axios.ajaxPost('/api/category/delAll', {
+          delAll: length === this.tableData.length,
+          delData: this.multipleSelection
+        })
+        this.$message.error('删除了' + str)
+        this.multipleSelection = []
+      }
     },
     handleSelectionChange (val) {
       this.multipleSelection = val

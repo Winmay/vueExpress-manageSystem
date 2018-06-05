@@ -109,4 +109,30 @@ router.post(api.delCategory, async function(request, response) {
     }
 });
 
+router.post(api.delAllCategory, async function(request, response) {
+    let delData = request.body.delData
+    let contentIds = ''
+    let data = []
+
+    try {
+        if (request.body.delAll) {
+            data = await sql.deleteSqlData( 'categoryTable' )
+        } else {
+            for (var i=0; i<delData.length; i++) {
+                if (i !== (delData.length-1)) {
+                    contentIds = contentIds + delData[i].contentId + ','
+                } else {
+                    contentIds = contentIds + delData[i].contentId
+                }
+            }
+            data = await sql.deleteSqlData( 'categoryTable', 'contentId IN (' + contentIds + ')' )
+        }
+        console.log(JSON.parse(JSON.stringify(data)))
+        jsonWrite(response, newData)
+    } catch (error)  { 
+        console.log('caught', error.message);
+        new Error('error: '+error.message) 
+    }
+});
+
 module.exports = router;

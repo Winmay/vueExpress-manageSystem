@@ -33,6 +33,24 @@
         <el-radio :label="2">下架</el-radio>
       </el-radio-group>
     </el-form-item>
+    <el-form-item label="首页轮播">
+      <el-radio-group v-model="data.carousel">
+        <el-radio :label="2"> 是 </el-radio>
+        <el-radio :label="1"> 否 </el-radio>
+      </el-radio-group>
+    </el-form-item>
+    <el-form-item label="首页新品">
+      <el-radio-group v-model="data.new">
+        <el-radio :label="2"> 是 </el-radio>
+        <el-radio :label="1"> 否 </el-radio>
+      </el-radio-group>
+    </el-form-item>
+    <el-form-item label="首页热销">
+      <el-radio-group v-model="data.hot">
+        <el-radio :label="2"> 是 </el-radio>
+        <el-radio :label="1"> 否 </el-radio>
+      </el-radio-group>
+    </el-form-item>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
@@ -132,7 +150,10 @@ export default {
         inventory: 0,
         marketPrice: 0,
         discountPrice: 0,
-        status: '1',
+        carousel: 1,
+        new: 1,
+        hot: 1,
+        status: 1,
         image: '',
         images: [
           {
@@ -188,7 +209,7 @@ export default {
       return this.formData ? this.formData : this.form
     },
   },
-  activated () {
+  mounted () {
     this.getCategoryData()
   },
   methods: {
@@ -331,7 +352,10 @@ export default {
         inventory: 0,
         marketPrice: 0,
         discountPrice: 0,
-        status: '1',
+        carousel: 1,
+        new: 1,
+        hot: 1,
+        status: 1,
         image: '',
         images: [],
         introduction: ''

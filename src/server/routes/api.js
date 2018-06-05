@@ -17,11 +17,13 @@ module.exports = {
   modProduct: _url + '/product/mod',
   addProduct: _url + '/product/add',
   delProduct: _url + '/product/del',
+  delAllProduct: _url + '/product/delAll',
 
   //category
   getCategory: _url + '/category/get',
   modCategory: _url + '/category/mod',
   addCategory: _url + '/category/add',
   delCategory: _url + '/category/del',
+  delAllCategory: _url + '/category/delAll',
 }
  

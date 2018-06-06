@@ -127,7 +127,6 @@ export default {
       categoryData: [],
       dialogImageUrl: '',
       dialogVisible: false,
-      defaultMsg: '还没有编写商品详情哦，快来编写吧',
       config: {
         toolbars: [
           ['fullscreen', 'source', '|', 'undo', 'redo', '|', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'subscript', 'superscript', 'removeformat', 'formatmatch', 'autotypeset', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|', 'rowspacingtop', 'rowspacingbottom', 'lineheight', '|', 'customstyle', 'paragraph', 'fontfamily', 'fontsize', '|', 'directionalityltr', 'directionalityrtl', 'indent', '|', 'justifyleft', 'justifyright', 'justifycenter', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|', 'link', 'unlink', '|', 'imagenone', 'imageleft', 'imageright', 'imagecenter', 'edittip ', '|', 'insertimage', 'emotion', '|', 'background', 'template', '|', 'horizontal', 'date', 'time', 'spechars', '|', 'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol', 'deletecol', 'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', 'edittable', 'edittd', '|', 'preview', 'searchreplace', 'help']
@@ -208,6 +207,9 @@ export default {
       console.log(this.formData)
       return this.formData ? this.formData : this.form
     },
+    defaultMsg () {
+      return this.formData ? this.formData.introduction : '还没有编写商品详情哦，快来编写吧'
+    }
   },
   mounted () {
     this.getCategoryData()
@@ -330,6 +332,9 @@ export default {
         inventory: this.form.inventory,
         marketPrice: this.form.marketPrice,
         discountPrice: this.form.discountPrice,
+        carousel: this.form.carousel,
+        new: this.form.new,
+        hot: this.form.hot,
         status: this.form.status,
         image: this.form.image,
         images: this.form.images,

@@ -74,6 +74,7 @@ export default {
         this.instance.addListener('ready', () => {
           this.ready = true
           this.$emit('ready', this.instance)
+          this.instance.setContent(this.defaultMsg)
         })
       })
       /*const _this = this

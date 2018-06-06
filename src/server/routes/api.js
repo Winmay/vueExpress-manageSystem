@@ -18,6 +18,7 @@ module.exports = {
   addProduct: _url + '/product/add',
   delProduct: _url + '/product/del',
   delAllProduct: _url + '/product/delAll',
+  searchProduct: _url + '/product/search',
 
   //category
   getCategory: _url + '/category/get',

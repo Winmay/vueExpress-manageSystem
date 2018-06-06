@@ -26,8 +26,8 @@
                 </el-table-column>
                 <el-table-column header-align="center" align="center" label="操作" width="180">
                     <template slot-scope="scope">
-                        <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button class="small" icon="el-icon-edit" title="编辑" type="primary" @click="handleEdit(scope.$index, scope.row)"></el-button>
+                        <el-button class="small" icon="el-icon-delete" title="删除" type="danger" @click="handleDelete(scope.$index, scope.row)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -190,6 +190,12 @@ export default {
 </script>
 
 <style scoped>
+    .small {
+      margin-left: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
     .handle-box {
         margin-bottom: 20px;
     }

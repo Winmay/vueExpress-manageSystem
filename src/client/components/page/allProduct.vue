@@ -8,13 +8,31 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-button type="danger" icon="delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
-                <el-select v-model="select_cate" placeholder="筛选省份" class="handle-select mr10">
-                    <el-option key="1" label="广东省" value="广东省"></el-option>
-                    <el-option key="2" label="湖南省" value="湖南省"></el-option>
+                <el-button type="danger" icon="delete" class="handle-del mr10 paddingDiv" @click="delAll">批量删除</el-button>
+                <el-select clearable @clear="clearSearch" @change="selectSearch('categoryId')" v-model="selectCategory" placeholder="筛选分类" class="handle-select mr10 paddingDiv">
+                    <el-option
+                      v-for="item in categoryData"
+                      :key="item.contentId"
+                      :label="item.name"
+                      :value="item.contentId">
+                    </el-option>
                 </el-select>
-                <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                <el-select clearable @clear="clearSearch" @change="selectSearch('carousel')" v-model="selectCarousel" placeholder="首页轮播" class="handle-select mr10 paddingDiv">
+                    <el-option key="2" label="是" value="2">
+                    </el-option>
+                </el-select>
+                <el-select clearable @clear="clearSearch" @change="selectSearch('new')" v-model="selectNew" placeholder="首页新品" class="handle-select mr10 paddingDiv">
+                    <el-option key="2" label="是" value="2">
+                    </el-option>
+                </el-select>
+                <el-select clearable @clear="clearSearch" @change="selectSearch('hot')" v-model="selectHot" placeholder="首页热销" class="handle-select mr10 paddingDiv">
+                    <el-option key="2" label="是" value="2">
+                    </el-option>
+                </el-select>
+                <div class="paddingDiv">
+                  <el-input clearable @clear="clearSearch" v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
+                  <el-button type="primary" icon="search" @click="search">搜索</el-button>
+                </div>
             </div>
             <el-table
               :data="data"
@@ -73,7 +91,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination @current-change="handleCurrentChange" layout="prev, pager, next" :total="totalPage">
+                <el-pagination :current-page.sync="currentPage" @current-change="handleCurrentChange" layout="prev, pager, next" :total="totalPage">
                 </el-pagination>
             </div>
         </div>
@@ -121,8 +139,13 @@ export default {
       categoryData: [],
       totalPage: 0,
       cur_page: 1,
+      cursearch_page: 1,
+      currentPage: 1,
       multipleSelection: [],
-      select_cate: '',
+      selectCategory: '',
+      selectCarousel: '',
+      selectNew: '',
+      selectHot: '',
       select_word: '',
       del_list: [],
       is_search: false,
@@ -148,12 +171,7 @@ export default {
           }
         }
         if (!isDel) {
-          // if (d.categoryId.indexOf(this.select_cate) > -1 &&
-          //     (d.name.indexOf(this.select_word) > -1 ||
-          //         d.categoryId.indexOf(this.select_word) > -1)
-          // ) {
-            return d
-          // }
+          return d
         }
       })
       
@@ -162,8 +180,13 @@ export default {
   methods: {
     // 分页导航
     handleCurrentChange (val) {
-      this.cur_page = val
-      this.getData()
+      if ( this.is_search ) {
+        this.cursearch_page = val
+      } else {
+        this.cur_page = val
+        this.getData()
+      }
+      this.currentPage = val
     },
     // 获取 easy-mock 的模拟数据
     async getData () {
@@ -189,8 +212,55 @@ export default {
         this.categoryData = data.data.data
       }
     },
-    search () {
+    async searchApi (keywords, name) {
+      console.log(keywords)
+      var data = await axios.ajaxGet('/api/product/search', {
+        params: {
+          pageIndex: this.cursearch_page,
+          keywords: keywords,
+          name: name
+        }
+      })
+      if (data.code !== 0) {
+        await this.$message.error(data.msg)
+      } else {
+        this.tableData = data.data.data
+        this.totalPage = data.data.count
+        console.log(data.data)
+      }
+    },
+    async search () {
       this.is_search = true
+      let keywords = ''
+      if (this.select_word) {
+        keywords = this.select_word
+      } else {
+        this.$message.error('请输入需要搜索的数据')
+        return
+      }
+      await this.searchApi(keywords, 'name')
+    },
+    async selectSearch (type) {
+      console.log(type)
+      this.is_search = true
+      let keywords = ''
+      if (this.selectCategory) {
+        keywords = this.selectCategory
+      } else if (this.selectCarousel) {
+        keywords = this.selectCarousel
+      } else if (this.selectNew) {
+        keywords = this.selectNew
+      } else if (this.selectHot) {
+        keywords = this.selectHot
+      } else {
+        return
+      }
+      await this.searchApi(keywords, type)
+    },
+    clearSearch () {
+      console.log('clearSearch')
+      this.is_search = false
+      this.handleCurrentChange(this.cur_page)
     },
     formatter (row, column) {
       return row.address
@@ -263,6 +333,9 @@ export default {
 </script>
 
 <style scoped>
+    .paddingDiv {
+      margin: 5px 0;
+    }
     .handle-box {
         margin-bottom: 20px;
     }

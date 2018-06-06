@@ -96,6 +96,40 @@ router.get(api.allProduct, async function(request, response) {
 
 });
 
+router.get(api.searchProduct, async function(request, response) {
+    const urlModule = require('url');
+    let params = urlModule.parse(request.url, true).query;//解析数据 获得Json对象
+    let pageIndex = parseInt(params.pageIndex)
+    let keywords = params.keywords
+    let param = params.name
+    let count = 0
+    try {
+        let countData = await sql.selectSqlData( 'productTable where ' + param + ' like "%aa%"', 'count' )
+        count = JSON.parse(JSON.stringify(countData[0]))['count']
+
+        let data = await sql.fetchSearchSqlData( 'productTable', param, keywords, pageIndex, 10 )
+
+        let result = JSON.parse(JSON.stringify(data))
+
+        for(var i=0;i<result.length;i++){
+            result[i].images = JSON.parse(result[i].images)
+        }
+
+        let newData = {
+            data: {
+                data: result,
+                count: count
+            },
+            msg:'',
+            code:0
+        }
+        jsonWrite(response, newData);
+    } catch (error)  { 
+        console.log('caught', error.message);
+        new Error('error: '+error.message) 
+    }
+});
+
 router.get(api.getProduct, async function(request, response) {
     const urlModule = require('url');
     let params = urlModule.parse(request.url, true).query;//解析数据 获得Json对象

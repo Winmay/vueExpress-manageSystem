@@ -121,8 +121,8 @@ var fetchConditionSqlData = ( table, condition, value, param ) => {
 })*/
 
 //搜索
-var fetchSearchSqlData = ( table, param, keywords ) => {
-	var _sql = `select * from ${table} where ${param} like '%${keywords}%';`
+var fetchSearchSqlData = ( table, param, keywords, page, num ) => {
+	var _sql = `select * from ${table} where ${param} like '%${keywords}%' limit ${(page - 1) * num},${num};`
 	return query( _sql )
 }
 /*fetchSearchSqlData( 'datasource' , 'name', '平' ).then(res => {

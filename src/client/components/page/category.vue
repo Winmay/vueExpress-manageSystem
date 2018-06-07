@@ -22,7 +22,17 @@
                 </el-table-column>
                 <el-table-column header-align="center" align="center" prop="name" label="分类名称">
                 </el-table-column>
+                <el-table-column header-align="center" align="center" prop="image" label="分类封面" width="100">
+                  <template slot-scope="scope">
+                    <img  :src="scope.row.image" alt="" style="width: 80px;height: 80px">
+                  </template>
+                </el-table-column>
                 <el-table-column header-align="center" align="center" prop="productCount" label="产品数" width="100">
+                </el-table-column>
+                <el-table-column header-align="center" align="center" prop="sortNum" label="排序" width="100">
+                  <template slot-scope="scope">
+                    <el-input class="sortNumWrap" type="number" min="1" @change="sortNumChange(scope.$index, scope.row.sortNum)" v-model="scope.row.sortNum"></el-input>
+                  </template>
                 </el-table-column>
                 <el-table-column header-align="center" align="center" label="操作" width="180">
                     <template slot-scope="scope">
@@ -113,12 +123,6 @@ export default {
         console.log(data.data)
       }
     },
-    formatter (row, column) {
-      return row.address
-    },
-    filterTag (value, row) {
-      return row.tag === value
-    },
     handleAdd () {
       this.addVisible = true
       this.editVisible = true
@@ -183,6 +187,10 @@ export default {
       await this.tableData.splice(this.idx, 1)
       await this.$message.success('删除成功')
       this.delVisible = false
+    },
+    async sortNumChange (index, value) {
+      await axios.ajaxPost('/api/category/mod', this.tableData[index])
+      await this.getCategoryData()
     }
   }
 }

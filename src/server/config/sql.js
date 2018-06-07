@@ -95,8 +95,8 @@ var deleteTable = ( sqlName ) => {
 *@table string  表名
 */
 //查找表中的所有数据
-var fetchAllSqlData = ( table ) => {
-	var _sql = `select * from ${table};`
+var fetchAllSqlData = ( table, soltType ) => {
+	var _sql = `select * from ${table} order by sortNum desc, contentId asc;`
 	return query( _sql )
 }
 /*fetchAllSqlData( 'datasource' ).then(res => {
@@ -144,7 +144,7 @@ limit 和order by 一起使用来做分页
 */
 // 分页数据查找
 var fetchPageSqlData = ( table, page, num ) => {
-	var _sql = `select * from ${table} limit ${(page - 1) * num},${num}; `
+	var _sql = `select * from ${table} order by sortNum desc, contentId asc limit ${(page - 1) * num},${num}; `
 	return query(_sql)
 }
 /*fetchPageSqlData( 'datasource' , 1, 3 ).then(res => {

@@ -35,7 +35,10 @@ a {
 .el-select-dropdown.el-popper {
     z-index: 20008 !important;
 }
-
+.sortNumWrap .el-input__inner {
+    text-align: center !important;
+    padding: 0;
+}
 .content-box {
     position: absolute;
     left: 250px;

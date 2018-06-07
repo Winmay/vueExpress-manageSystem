@@ -83,10 +83,15 @@
                     {{ scope.row.hot === 1 ? '' : '是' }}
                   </template>
                 </el-table-column>
+                <el-table-column header-align="center" align="center" prop="sortNum" label="排序" width="100">
+                  <template slot-scope="scope">
+                    <el-input class="sortNumWrap" type="number" min="1" @change="sortNumChange(scope.$index, scope.row.sortNum)" v-model="scope.row.sortNum"></el-input>
+                  </template>
+                </el-table-column>
                 <el-table-column header-align="center" align="center" label="操作" width="180">
                     <template slot-scope="scope">
-                        <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button class="small" icon="el-icon-edit" title="编辑" type="primary" @click="handleEdit(scope.$index, scope.row)"></el-button>
+                        <el-button class="small" icon="el-icon-delete" title="删除" type="danger" @click="handleDelete(scope.$index, scope.row)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -262,12 +267,6 @@ export default {
       this.is_search = false
       this.handleCurrentChange(this.cur_page)
     },
-    formatter (row, column) {
-      return row.address
-    },
-    filterTag (value, row) {
-      return row.tag === value
-    },
     handleEdit (index, row) {
       this.idx = index
       const item = this.tableData[index]
@@ -326,6 +325,10 @@ export default {
       await this.$message.success('删除成功')
       // await this.getData()
       this.delVisible = false
+    },
+    async sortNumChange (index, value) {
+      await axios.ajaxPost('/api/product/mod', this.tableData[index])
+      await this.getData()
     }
   }
 }
@@ -333,6 +336,12 @@ export default {
 </script>
 
 <style scoped>
+    .small {
+      margin-left: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
     .paddingDiv {
       margin: 5px 0;
     }

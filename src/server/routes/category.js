@@ -12,7 +12,9 @@ var router = express.Router();
 
 var param = 'contentId INT NOT NULL AUTO_INCREMENT COMMENT "分类 Id",'
     +'name VARCHAR(100) NOT NULL COMMENT "分类名称",'
+    +'image VARCHAR(1000) NOT NULL COMMENT "分类封面图",'
     +'productCount INT(10) NOT NULL DEFAULT "0" COMMENT "产品数",'
+    +'sortNum INT(10) NOT NULL DEFAULT 1 COMMENT "排序",'
     +'createTime VARCHAR(20) DEFAULT NULL COMMENT "创建时间",'
     +'updateTime VARCHAR(20) DEFAULT NULL COMMENT "更新时间",'
     +'PRIMARY KEY ( contentId )'
